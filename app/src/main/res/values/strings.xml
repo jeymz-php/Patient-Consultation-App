@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Patient Information and Online Consultation System</string>
+    <string name="open">Open Navigation</string>
+    <string name="close">Close Navigation</string>
 </resources>
