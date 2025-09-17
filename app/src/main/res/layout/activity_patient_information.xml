@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="30dp"
+    android:orientation="vertical">
+
+    <!-- 🔶 Orange Top Rectangle with Logo + Title (fixed) -->
+    <LinearLayout
+        android:id="@+id/topRectangle"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_alignParentTop="true"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:background="#E87C00">
+
+        <!-- Patient Info Logo -->
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/patientinfo_logo"
+            android:contentDescription="Patient Info Logo"
+            android:layout_marginEnd="8dp" />
+
+        <!-- Title Text -->
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Patient Information"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <!-- 📜 Scrollable Form Below -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Name -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Name"
+                android:textStyle="bold"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <EditText
+                    android:id="@+id/etFirstName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="First Name"/>
+
+                <EditText
+                    android:id="@+id/etMiddleName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Middle Name"/>
+
+                <EditText
+                    android:id="@+id/etLastName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Last Name"/>
+            </LinearLayout>
+
+            <!-- Date of Birth -->
+            <EditText
+                android:id="@+id/etDob"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Date of Birth (MM/DD/YYYY)"
+                android:inputType="date"/>
+
+            <!-- Sex -->
+            <Spinner
+                android:id="@+id/spinnerSex"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/prompt_sex" />
+
+            <!-- Height -->
+            <EditText
+                android:id="@+id/etHeight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Height (inches)"
+                android:inputType="number"/>
+
+            <!-- Weight -->
+            <EditText
+                android:id="@+id/etWeight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Weight (kg)"
+                android:inputType="number"/>
+
+            <!-- Marital Status -->
+            <Spinner
+                android:id="@+id/spinnerMaritalStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/prompt_marital_status" />
+
+            <!-- Contact Number -->
+            <EditText
+                android:id="@+id/etContactNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Contact Number (11 digits)"
+                android:inputType="phone"
+                android:maxLength="11"/>
+
+            <!-- Email -->
+            <EditText
+                android:id="@+id/etEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Email"
+                android:inputType="textEmailAddress"/>
+
+            <!-- Address -->
+            <EditText
+                android:id="@+id/etAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Street Address, City, State/Province"
+                android:inputType="textMultiLine"/>
+
+            <!-- Medications -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Taking any medications currently?"
+                android:textStyle="bold"
+                android:paddingTop="8dp"/>
+
+            <RadioGroup
+                android:id="@+id/radioMedications"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <RadioButton
+                    android:id="@+id/radioYes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Yes"/>
+                <RadioButton
+                    android:id="@+id/radioNo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No"/>
+            </RadioGroup>
+
+            <EditText
+                android:id="@+id/etMedicationList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Please list medications here"
+                android:inputType="textMultiLine"/>
+
+            <!-- Emergency Contact Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="In Case of Emergency"
+                android:textStyle="bold"
+                android:paddingTop="12dp"/>
+
+            <EditText
+                android:id="@+id/etEmergencyName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Emergency Contact Name"/>
+
+            <Spinner
+                android:id="@+id/spinnerRelationship"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/prompt_relationship" />
+
+            <EditText
+                android:id="@+id/etEmergencyContactNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Emergency Contact Number (11 digits)"
+                android:inputType="phone"
+                android:maxLength="11"/>
+
+            <!-- Submit Button -->
+            <Button
+                android:id="@+id/btnSubmit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Submit"
+                android:backgroundTint="#E87C00"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="16dp"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

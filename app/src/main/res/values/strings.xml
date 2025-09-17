@@ -2,4 +2,7 @@
     <string name="app_name">Patient Information and Online Consultation System</string>
     <string name="open">Open Navigation</string>
     <string name="close">Close Navigation</string>
+    <string name="prompt_sex">Select Sex</string>
+    <string name="prompt_marital_status">Select Marital Status</string>
+    <string name="prompt_relationship">Select Relationship</string>
 </resources>

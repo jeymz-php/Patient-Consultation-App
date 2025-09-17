@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PatientInformationAndOnlineConsultationSystem">
         <activity
+            android:name=".PatientInformationActivity"
+            android:exported="false" />
+        <activity
             android:name=".RegisterActivity"
             android:exported="false" />
         <activity
