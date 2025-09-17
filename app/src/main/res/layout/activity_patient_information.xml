@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="30dp"
+    android:paddingTop="?attr/actionBarSize"
     android:orientation="vertical">
 
     <!-- 🔶 Orange Top Rectangle with Logo + Title (fixed) -->
@@ -28,13 +28,14 @@
 
         <!-- Title Text -->
         <TextView
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Patient Information"
             android:textColor="@android:color/white"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:padding="16dp"
+            android:gravity="center" />
 
     </LinearLayout>
 
@@ -98,7 +99,7 @@
                 android:id="@+id/spinnerSex"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:prompt="@string/prompt_sex" />
+                android:entries="@array/sex_options" />
 
             <!-- Height -->
             <EditText
@@ -121,7 +122,7 @@
                 android:id="@+id/spinnerMaritalStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:prompt="@string/prompt_marital_status" />
+                android:entries="@array/marital_status_options" />
 
             <!-- Contact Number -->
             <EditText
@@ -198,7 +199,7 @@
                 android:id="@+id/spinnerRelationship"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:prompt="@string/prompt_relationship" />
+                android:entries="@array/relationship_options" />
 
             <EditText
                 android:id="@+id/etEmergencyContactNumber"
