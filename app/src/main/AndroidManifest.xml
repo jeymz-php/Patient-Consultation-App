@@ -11,24 +11,36 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PatientInformationAndOnlineConsultationSystem">
+
+        <!-- Doctors List -->
+        <activity
+            android:name=".DoctorsListActivity"
+            android:exported="false" />
+
+        <!-- Patient Info -->
         <activity
             android:name=".PatientInformationActivity"
             android:exported="false" />
+
+        <!-- Register -->
         <activity
             android:name=".RegisterActivity"
             android:exported="false" />
+
+        <!-- Login -->
         <activity
             android:name=".LoginActivity"
             android:exported="false" />
+
+        <!-- Main (Launcher) -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+    </application>
 </manifest>
