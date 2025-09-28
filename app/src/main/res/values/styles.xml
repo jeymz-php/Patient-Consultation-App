@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TimeSlotButton">
+        <item name="android:background">@drawable/btn_time_slot_bg</item>
+        <item name="android:textColor">#E87C00</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>

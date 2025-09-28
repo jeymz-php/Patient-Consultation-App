@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Schedule Consultation"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Month navigation -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="8dp">
+
+        <!-- Left arrow -->
+        <ImageButton
+            android:id="@+id/btnPrev"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@null"
+            android:src="@android:drawable/ic_media_previous"/>
+
+        <!-- Month/Year text -->
+        <TextView
+            android:id="@+id/tvMonthYear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="September 2025"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginHorizontal="16dp"/>
+
+        <!-- Right arrow -->
+        <ImageButton
+            android:id="@+id/btnNext"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@null"
+            android:src="@android:drawable/ic_media_next"/>
+    </LinearLayout>
+
+    <!-- RecyclerView for days -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewDays"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:orientation="horizontal"
+        android:scrollbars="horizontal"/>
+
+    <!-- Time Slots -->
+    <TextView
+        android:id="@+id/tvTimeSlotsTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Available Time Slots"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"/>
+
+    <GridLayout
+        android:id="@+id/gridTimeSlots"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="3"
+        android:rowCount="4"
+        android:alignmentMode="alignMargins"
+        android:rowOrderPreserved="false"
+        android:useDefaultMargins="true">
+
+        <Button android:text="09:00 AM" style="@style/TimeSlotButton"/>
+        <Button android:text="10:00 AM" style="@style/TimeSlotButton"/>
+        <Button android:text="11:00 AM" style="@style/TimeSlotButton"/>
+        <Button android:text="01:00 PM" style="@style/TimeSlotButton"/>
+        <Button android:text="02:00 PM" style="@style/TimeSlotButton"/>
+        <Button android:text="03:00 PM" style="@style/TimeSlotButton"/>
+        <Button android:text="04:00 PM" style="@style/TimeSlotButton"/>
+        <Button android:text="05:00 PM" style="@style/TimeSlotButton"/>
+    </GridLayout>
+
+</LinearLayout>

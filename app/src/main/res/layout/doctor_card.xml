@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/doctorCardRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@drawable/card_background"
+    android:foreground="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
     android:padding="16dp"
     android:layout_margin="8dp"
     android:elevation="4dp">
 
+    <!-- Doctor Name -->
     <TextView
         android:id="@+id/tvDoctorName"
         android:layout_width="match_parent"
@@ -15,8 +20,9 @@
         android:text="Doctor Name"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="#333333" />
+        android:textColor="#222222" />
 
+    <!-- Specialization -->
     <TextView
         android:id="@+id/tvSpecialization"
         android:layout_width="match_parent"
@@ -26,6 +32,7 @@
         android:textColor="#E87C00"
         android:layout_marginTop="4dp" />
 
+    <!-- Experience -->
     <TextView
         android:id="@+id/tvExperience"
         android:layout_width="match_parent"
@@ -33,8 +40,9 @@
         android:text="Experience"
         android:textSize="12sp"
         android:textColor="#666666"
-        android:layout_marginTop="2dp" />
+        android:layout_marginTop="6dp" />
 
+    <!-- Contact -->
     <TextView
         android:id="@+id/tvContact"
         android:layout_width="match_parent"
@@ -42,8 +50,9 @@
         android:text="Contact"
         android:textSize="12sp"
         android:textColor="#666666"
-        android:layout_marginTop="2dp" />
+        android:layout_marginTop="4dp" />
 
+    <!-- Email -->
     <TextView
         android:id="@+id/tvEmail"
         android:layout_width="match_parent"
@@ -51,6 +60,6 @@
         android:text="Email"
         android:textSize="12sp"
         android:textColor="#666666"
-        android:layout_marginTop="2dp" />
+        android:layout_marginTop="4dp" />
 
 </LinearLayout>

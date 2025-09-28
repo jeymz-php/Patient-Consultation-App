@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#E87C00"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tvMonthYearTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Schedule Consultation"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:gravity="center" />
+
+        <Button
+            android:id="@+id/btnShowProtocol"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show Protocol"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:background="@android:color/transparent"
+            android:textColor="@android:color/white"
+            android:textStyle="italic" />
+
+    </LinearLayout>
+
+    <!-- Doctor Info -->
+    <TextView
+        android:id="@+id/tvDoctorInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Dr. Sarah Johnson - Cardiologist"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:padding="16dp"
+        android:background="#F8F8F8" />
+
+    <!-- Month Navigation -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/btnPrevMonth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="‹"
+            android:background="@android:color/transparent"
+            android:textColor="#E87C00"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/tvCurrentMonth"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="September 2025"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center" />
+
+        <Button
+            android:id="@+id/btnNextMonth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="›"
+            android:background="@android:color/transparent"
+            android:textColor="#E87C00"
+            android:textSize="24sp" />
+
+    </LinearLayout>
+
+    <!-- Calendar Grid -->
+    <GridView
+        android:id="@+id/calendarGrid"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:numColumns="7"
+        android:verticalSpacing="8dp"
+        android:horizontalSpacing="4dp"
+        android:padding="16dp" />
+
+    <!-- Next Button -->
+    <Button
+        android:id="@+id/btnNextToTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Next"
+        android:layout_margin="16dp"
+        android:background="#E87C00"
+        android:textColor="@android:color/white"
+        android:textSize="16sp" />
+
+</LinearLayout>
