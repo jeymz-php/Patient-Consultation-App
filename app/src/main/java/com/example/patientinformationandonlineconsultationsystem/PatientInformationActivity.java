@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.android.volley.Request;
@@ -34,7 +35,9 @@ public class PatientInformationActivity extends AppCompatActivity {
     private Button btnSubmit;
 
     // API URL - Change this to your server URL
-    private static final String API_URL = "http://192.168.100.2/patient-consultation-mobile/save_patient.php";
+    private static final String API_URL = "http://192.168.100.2/patient_api/save_patient.php";
+
+    private boolean isEditMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +49,22 @@ public class PatientInformationActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(android.graphics.Color.parseColor("#E87C00"));
         }
 
+        // Check if we're in edit mode
+        isEditMode = getIntent().getBooleanExtra("EDIT_MODE", false);
+
         initializeViews();
+
+        // Load existing data if in edit mode
+        if (isEditMode) {
+            loadExistingData();
+            btnSubmit.setText("Update Information");
+            // Update title
+            TextView tvTitle = findViewById(R.id.tvTitle);
+            if (tvTitle != null) {
+                tvTitle.setText("Edit Patient Information");
+            }
+        }
+
         setupDatePicker();
         setupMedicationToggle();
         setupSubmitButton();
@@ -235,10 +253,14 @@ public class PatientInformationActivity extends AppCompatActivity {
                 response -> {
                     // Success
                     btnSubmit.setEnabled(true);
-                    btnSubmit.setText("Submit");
+                    btnSubmit.setText(isEditMode ? "Update Information" : "Submit");
+
+                    String message = isEditMode ?
+                            "Patient information updated successfully!" :
+                            "Patient information saved successfully!";
 
                     Toast.makeText(PatientInformationActivity.this,
-                            "Patient information saved successfully!", Toast.LENGTH_LONG).show();
+                            message, Toast.LENGTH_LONG).show();
 
                     // Navigate to Patient Profile View
                     Intent intent = new Intent(PatientInformationActivity.this, PatientProfileActivity.class);
@@ -323,5 +345,55 @@ public class PatientInformationActivity extends AppCompatActivity {
         editor.putBoolean("has_patient_data", true);
 
         editor.apply();
+    }
+
+    private void loadExistingData() {
+        SharedPreferences prefs = getSharedPreferences("PatientData", MODE_PRIVATE);
+
+        // Load personal information
+        etFirstName.setText(prefs.getString("first_name", ""));
+        etMiddleName.setText(prefs.getString("middle_name", ""));
+        etLastName.setText(prefs.getString("last_name", ""));
+        etDob.setText(prefs.getString("date_of_birth", ""));
+        etHeight.setText(prefs.getString("height", ""));
+        etWeight.setText(prefs.getString("weight", ""));
+
+        // Load spinners
+        String gender = prefs.getString("gender", "");
+        setSpinnerValue(spinnerSex, gender);
+
+        String civilStatus = prefs.getString("civil_status", "");
+        setSpinnerValue(spinnerMaritalStatus, civilStatus);
+
+        // Load contact information
+        etContactNumber.setText(prefs.getString("contact_number", ""));
+        etEmail.setText(prefs.getString("email", ""));
+        etAddress.setText(prefs.getString("address", ""));
+
+        // Load medications
+        String takingMeds = prefs.getString("taking_medications", "No");
+        if (takingMeds.equals("Yes")) {
+            radioYes.setChecked(true);
+            etMedicationList.setVisibility(View.VISIBLE);
+            etMedicationList.setText(prefs.getString("medication_list", ""));
+        } else {
+            radioNo.setChecked(true);
+            etMedicationList.setVisibility(View.GONE);
+        }
+
+        // Load emergency contact
+        etEmergencyName.setText(prefs.getString("emergency_name", ""));
+        String relationship = prefs.getString("emergency_relationship", "");
+        setSpinnerValue(spinnerRelationship, relationship);
+        etEmergencyContactNumber.setText(prefs.getString("emergency_contact", ""));
+    }
+
+    private void setSpinnerValue(Spinner spinner, String value) {
+        for (int i = 0; i < spinner.getCount(); i++) {
+            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(value)) {
+                spinner.setSelection(i);
+                break;
+            }
+        }
     }
 }

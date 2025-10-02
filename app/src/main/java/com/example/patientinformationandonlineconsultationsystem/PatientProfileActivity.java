@@ -24,6 +24,13 @@ public class PatientProfileActivity extends AppCompatActivity {
         setupButtons();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reload data when returning to this activity
+        loadPatientData();
+    }
+
     private void initializeViews() {
         tvPatientName = findViewById(R.id.tvPatientName);
         tvDob = findViewById(R.id.tvDob);
@@ -85,8 +92,9 @@ public class PatientProfileActivity extends AppCompatActivity {
         });
 
         btnEditProfile.setOnClickListener(v -> {
-            // Go back to edit patient information
+            // Go back to edit patient information with edit mode flag
             Intent intent = new Intent(PatientProfileActivity.this, PatientInformationActivity.class);
+            intent.putExtra("EDIT_MODE", true);
             startActivity(intent);
         });
     }
