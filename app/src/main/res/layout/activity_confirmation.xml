@@ -1,69 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@android:color/white"
-    android:padding="24dp">
+    android:background="@android:color/white">
 
-    <!-- Success Icon -->
-    <ImageView
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:src="@drawable/ic_check_circle"
-        android:layout_gravity="center"
-        android:layout_marginTop="40dp" />
-
-    <!-- Success Message -->
+    <!-- Title -->
     <TextView
-        android:layout_width="match_parent"
+        android:id="@+id/tvConfirmationTitle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="You are now Scheduled!"
-        android:textSize="24sp"
+        android:text="Confirm Your Consultation"
+        android:textSize="22sp"
         android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginTop="16dp" />
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="20dp" />
 
-    <!-- Appointment Details -->
+    <!-- Card-style info -->
     <LinearLayout
+        android:orientation="vertical"
+        android:background="@android:color/darker_gray"
+        android:padding="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="#F8F8F8"
-        android:padding="16dp"
-        android:layout_marginTop="24dp">
+        android:backgroundTint="#F9F9F9"
+        android:elevation="4dp"
+        android:layout_marginBottom="30dp">
 
         <TextView
-            android:id="@+id/tvAppointmentDetail"
-            android:layout_width="match_parent"
+            android:id="@+id/tvSelectedDate"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Date: September 15, 2025\nTime: 2:30 PM"
-            android:textSize="16sp"
-            android:gravity="center"
-            android:textStyle="bold" />
+            android:text="📅 Date: -"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="12dp" />
 
+        <TextView
+            android:id="@+id/tvSelectedTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⏰ Time: -"
+            android:textSize="18sp"
+            android:textColor="@android:color/black" />
     </LinearLayout>
 
-    <!-- Important Note -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Please arrive on time and verify your information. Contact us if you need to cancel or reschedule."
-        android:textSize="14sp"
-        android:textColor="#666666"
-        android:gravity="center"
-        android:layout_marginTop="24dp"
-        android:lineSpacingExtra="4dp" />
-
-    <!-- Continue Button -->
+    <!-- Buttons -->
     <Button
-        android:id="@+id/btnContinue"
+        android:id="@+id/btnConfirm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Continue"
-        android:layout_marginTop="32dp"
-        android:background="#E87C00"
+        android:text="Confirm Consultation"
+        android:textAllCaps="false"
+        android:textSize="18sp"
         android:textColor="@android:color/white"
-        android:textSize="16sp" />
+        android:backgroundTint="#FF9800"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Back"
+        android:textAllCaps="false"
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#9E9E9E" />
 
 </LinearLayout>
