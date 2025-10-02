@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Terms and Conditions"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#E87C00"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Scrollable Content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:background="#F5F5F5"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Terms and Conditions Section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Terms and Conditions"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="By using this Patient Information and Online Consultation System, you agree to the following terms:\n\n1. You will provide accurate and truthful information.\n2. You understand that this system is for consultation purposes only and does not replace in-person medical examination.\n3. The information you provide will be used solely for healthcare purposes.\n4. You agree to comply with all applicable laws and regulations.\n5. The system administrators reserve the right to modify these terms at any time.\n\n"
+                android:textSize="14sp"
+                android:textColor="#555555"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Data Privacy Act Section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Data Privacy Act of 2012 (Republic Act No. 10173)"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="In accordance with the Data Privacy Act of 2012, we are committed to protecting your personal information:\n\n1. Your personal and medical information will be collected, processed, and stored securely.\n2. Your data will only be accessed by authorized healthcare professionals.\n3. We will not share your information with third parties without your explicit consent, except as required by law.\n4. You have the right to access, correct, and request deletion of your personal data.\n5. We implement appropriate security measures to protect your information from unauthorized access or disclosure.\n6. By proceeding, you consent to the collection and processing of your personal data for healthcare purposes.\n\nFor concerns regarding your data privacy rights, you may contact our Data Protection Officer."
+                android:textSize="14sp"
+                android:textColor="#555555"
+                android:lineSpacingExtra="4dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Checkbox for Terms and Conditions -->
+    <CheckBox
+        android:id="@+id/checkBoxTerms"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="I agree to the Terms and Conditions"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Checkbox for Data Privacy Act -->
+    <CheckBox
+        android:id="@+id/checkBoxPrivacy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="I agree to the Data Privacy Act of 2012"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Next Button (Initially Hidden) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnNext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Next"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:backgroundTint="#E87C00"
+        app:cornerRadius="8dp"
+        android:visibility="gone" />
+
+</LinearLayout>

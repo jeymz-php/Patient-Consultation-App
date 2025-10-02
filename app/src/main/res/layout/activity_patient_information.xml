@@ -2,222 +2,436 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="?attr/actionBarSize"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="#FFFFFF">
 
-    <!-- 🔶 Orange Top Rectangle with Logo + Title (fixed) -->
+    <!-- Orange Top Rectangle with Logo + Title -->
     <LinearLayout
         android:id="@+id/topRectangle"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:orientation="horizontal"
+        android:layout_height="104dp"
+        android:background="#E87C00"
+        android:elevation="4dp"
         android:gravity="center_vertical"
-        android:layout_alignParentTop="true"
+        android:orientation="horizontal"
         android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:background="#E87C00">
+        android:paddingTop="24dp"
+        android:paddingEnd="12dp">
 
-        <!-- Patient Info Logo -->
         <ImageView
             android:id="@+id/logo"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/patientinfo_logo"
+            android:layout_marginEnd="8dp"
             android:contentDescription="Patient Info Logo"
-            android:layout_marginEnd="8dp" />
+            android:src="@drawable/patientinfo_logo" />
 
-        <!-- Title Text -->
         <TextView
             android:id="@+id/tvTitle"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
             android:text="Patient Information"
             android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:padding="16dp"
-            android:gravity="center" />
-
+            android:textSize="20sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- 📜 Scrollable Form Below -->
+    <!-- Scrollable Form -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="16dp">
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="20dp">
 
-            <!-- Name -->
+            <!-- Section: Personal Information -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Personal Information"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#E87C00"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Name Section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Name"
-                android:textStyle="bold"/>
+                android:text="Full Name"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:weightSum="3">
+                android:layout_marginBottom="16dp">
 
-                <EditText
-                    android:id="@+id/etFirstName"
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="First Name"/>
+                    android:layout_marginEnd="4dp"
+                    android:hint="First Name">
 
-                <EditText
-                    android:id="@+id/etMiddleName"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etFirstName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapWords" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="Middle Name"/>
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:hint="Middle">
 
-                <EditText
-                    android:id="@+id/etLastName"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etMiddleName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapWords" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="Last Name"/>
+                    android:layout_marginStart="4dp"
+                    android:hint="Last Name">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etLastName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapWords" />
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
             <!-- Date of Birth -->
-            <EditText
-                android:id="@+id/etDob"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Date of Birth (MM/DD/YYYY)"
-                android:inputType="date"/>
+                android:layout_marginBottom="16dp"
+                android:hint="Date of Birth">
 
-            <!-- Sex -->
-            <Spinner
-                android:id="@+id/spinnerSex"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:entries="@array/sex_options" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDob"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableEnd="@android:drawable/ic_menu_my_calendar"
+                    android:focusable="false"
+                    android:clickable="true" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Height -->
-            <EditText
-                android:id="@+id/etHeight"
+            <!-- Sex and Civil Status -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Height (inches)"
-                android:inputType="number"/>
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
 
-            <!-- Weight -->
-            <EditText
-                android:id="@+id/etWeight"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Weight (kg)"
-                android:inputType="number"/>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="8dp">
 
-            <!-- Marital Status -->
-            <Spinner
-                android:id="@+id/spinnerMaritalStatus"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sex"
+                        android:textStyle="bold"
+                        android:textColor="#333333"
+                        android:layout_marginBottom="4dp" />
+
+                    <Spinner
+                        android:id="@+id/spinnerSex"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@android:drawable/edit_text"
+                        android:padding="12dp"
+                        android:entries="@array/sex_options" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Civil Status"
+                        android:textStyle="bold"
+                        android:textColor="#333333"
+                        android:layout_marginBottom="4dp" />
+
+                    <Spinner
+                        android:id="@+id/spinnerMaritalStatus"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@android:drawable/edit_text"
+                        android:padding="12dp"
+                        android:entries="@array/marital_status_options" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Height and Weight -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:entries="@array/marital_status_options" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:hint="Height (inches)">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etHeight"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:hint="Weight (kg)">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etWeight"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Section: Contact Information -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Contact Information"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#E87C00"
+                android:layout_marginBottom="12dp" />
 
             <!-- Contact Number -->
-            <EditText
-                android:id="@+id/etContactNumber"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Contact Number (11 digits)"
-                android:inputType="phone"
-                android:maxLength="11"/>
+                android:layout_marginBottom="16dp"
+                android:hint="Contact Number (11 digits)">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etContactNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="phone"
+                    android:maxLength="11" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Email -->
-            <EditText
-                android:id="@+id/etEmail"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Email"
-                android:inputType="textEmailAddress"/>
+                android:layout_marginBottom="16dp"
+                android:hint="Email Address">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Address -->
-            <EditText
-                android:id="@+id/etAddress"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Street Address, City, State/Province"
-                android:inputType="textMultiLine"/>
+                android:layout_marginBottom="16dp"
+                android:hint="Complete Address">
 
-            <!-- Medications -->
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:minLines="2"
+                    android:gravity="top" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Section: Medical Information -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Medical Information"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#E87C00"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Medications Question -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Taking any medications currently?"
+                android:text="Are you currently taking any medications?"
                 android:textStyle="bold"
-                android:paddingTop="8dp"/>
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp" />
 
             <RadioGroup
                 android:id="@+id/radioMedications"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
                 <RadioButton
                     android:id="@+id/radioYes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"/>
+                    android:text="Yes"
+                    android:layout_marginEnd="24dp" />
+
                 <RadioButton
                     android:id="@+id/radioNo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"/>
+                    android:text="No" />
             </RadioGroup>
 
-            <EditText
-                android:id="@+id/etMedicationList"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Please list medications here"
-                android:inputType="textMultiLine"/>
+                android:layout_marginBottom="16dp"
+                android:hint="Please list medications (if any)">
 
-            <!-- Emergency Contact Section -->
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etMedicationList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:minLines="3"
+                    android:gravity="top" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Section: Emergency Contact -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Emergency Contact Information"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#E87C00"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Emergency Contact Name -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:hint="Emergency Contact Name">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etEmergencyName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapWords" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Relationship -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="In Case of Emergency"
+                android:text="Relationship"
                 android:textStyle="bold"
-                android:paddingTop="12dp"/>
-
-            <EditText
-                android:id="@+id/etEmergencyName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Emergency Contact Name"/>
+                android:textColor="#333333"
+                android:layout_marginBottom="4dp" />
 
             <Spinner
                 android:id="@+id/spinnerRelationship"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
+                android:background="@android:drawable/edit_text"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp"
                 android:entries="@array/relationship_options" />
 
-            <EditText
-                android:id="@+id/etEmergencyContactNumber"
+            <!-- Emergency Contact Number -->
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Emergency Contact Number (11 digits)"
-                android:inputType="phone"
-                android:maxLength="11"/>
+                android:layout_marginBottom="24dp"
+                android:hint="Emergency Contact Number (11 digits)">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etEmergencyContactNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="phone"
+                    android:maxLength="11" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Submit Button -->
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSubmit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Submit"
-                android:backgroundTint="#E87C00"
+                android:layout_height="56dp"
+                android:text="Submit Patient Information"
                 android:textColor="@android:color/white"
-                android:layout_marginTop="16dp"/>
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:backgroundTint="#E87C00"
+                android:layout_marginBottom="24dp" />
+
         </LinearLayout>
     </ScrollView>
+
 </LinearLayout>
