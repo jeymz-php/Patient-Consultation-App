@@ -1,89 +1,78 @@
 package com.example.patientinformationandonlineconsultationsystem;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TimeSelectionActivity extends AppCompatActivity {
-    private GridView timeGrid;
-    private Button btnBack, btnConfirm;
-    private TextView tvSelectedDate;
-    private String doctorName, specialization, selectedDate, selectedTime = null;
+
+    private GridView gridView;
+    private TimeAdapter timeAdapter;
+    private List<String> timeSlots;
+    private String selectedTime = null;
+    private Button btnNextToConfirmation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_time_selection);
 
-        timeGrid = findViewById(R.id.timeGrid);
-        btnBack = findViewById(R.id.btnBack);
-        btnConfirm = findViewById(R.id.btnConfirm);
-        tvSelectedDate = findViewById(R.id.tvSelectedDate);
+        gridView = findViewById(R.id.gridView);
+        btnNextToConfirmation = findViewById(R.id.btnNextToConfirmation);
 
-        doctorName = getIntent().getStringExtra("doctorName");
-        specialization = getIntent().getStringExtra("specialization");
-        selectedDate = getIntent().getStringExtra("selectedDate");
+        // Sample time slots
+        timeSlots = new ArrayList<>();
+        timeSlots.add("09:00 AM");
+        timeSlots.add("09:30 AM");
+        timeSlots.add("10:00 AM");
+        timeSlots.add("10:30 AM");
+        timeSlots.add("11:00 AM");
+        timeSlots.add("11:30 AM");
+        timeSlots.add("01:00 PM");
+        timeSlots.add("01:30 PM");
+        timeSlots.add("02:00 PM");
+        timeSlots.add("02:30 PM");
+        timeSlots.add("03:00 PM");
+        timeSlots.add("03:30 PM");
+        timeSlots.add("04:00 PM");
 
-        tvSelectedDate.setText("Selected Date: " + selectedDate);
+        timeAdapter = new TimeAdapter(this, timeSlots);
+        gridView.setAdapter(timeAdapter);
 
-        setupTimeSlots();
-        setupClickListeners();
-    }
-
-    private void setupTimeSlots() {
-        String[] timeSlots = {
-                "8:00 AM", "8:30 AM", "9:00 AM",
-                "9:30 AM", "10:00 AM", "10:30 AM",
-                "11:00 AM", "11:30 AM", "12:00 PM",
-                "2:30 PM", "3:00 PM", "3:30 PM"
-        };
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, timeSlots) {
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                TextView tv = (TextView) super.getView(position, convertView, parent);
-                tv.setBackgroundResource(R.drawable.time_slot_background);
-                tv.setTextColor(Color.BLACK);
-                tv.setPadding(20, 20, 20, 20);
-                return tv;
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                timeAdapter.setSelected(position);
+                selectedTime = timeAdapter.getSelectedTime();
+                Toast.makeText(TimeSelectionActivity.this, "Selected: " + selectedTime, Toast.LENGTH_SHORT).show();
             }
-        };
-        timeGrid.setAdapter(adapter);
-
-        timeGrid.setOnItemClickListener((parent, view, position, id) -> {
-            selectedTime = (String) parent.getItemAtPosition(position);
-
-            // reset all
-            for (int i = 0; i < parent.getChildCount(); i++) {
-                parent.getChildAt(i).setBackgroundResource(R.drawable.time_slot_background);
-                ((TextView) parent.getChildAt(i)).setTextColor(Color.BLACK);
-            }
-
-            // highlight selected
-            view.setBackgroundColor(Color.parseColor("#E87C00"));
-            ((TextView) view).setTextColor(Color.WHITE);
         });
-    }
 
-    private void setupClickListeners() {
-        btnBack.setOnClickListener(v -> finish());
-
-        btnConfirm.setOnClickListener(v -> {
+        // Handle Next button → go to ConfirmationActivity
+        btnNextToConfirmation.setOnClickListener(v -> {
             if (selectedTime != null) {
-                Intent intent = new Intent(this, ConfirmationActivity.class);
-                intent.putExtra("doctorName", doctorName);
-                intent.putExtra("specialization", specialization);
-                intent.putExtra("selectedDate", selectedDate);
+                Intent intent = new Intent(TimeSelectionActivity.this, ConfirmationActivity.class);
+
+                // Pass doctor info + selected date from previous activity
+                intent.putExtra("doctorName", getIntent().getStringExtra("doctorName"));
+                intent.putExtra("specialization", getIntent().getStringExtra("specialization"));
+                intent.putExtra("selectedDate", getIntent().getStringExtra("selectedDate"));
+
+                // Pass selected time from this activity
                 intent.putExtra("selectedTime", selectedTime);
+
                 startActivity(intent);
+            } else {
+                Toast.makeText(TimeSelectionActivity.this, "Please select a time slot", Toast.LENGTH_SHORT).show();
             }
         });
     }

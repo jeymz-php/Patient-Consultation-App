@@ -1,9 +1,12 @@
 package com.example.patientinformationandonlineconsultationsystem;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -16,7 +19,8 @@ public class ScheduleConsultationActivity extends AppCompatActivity {
     private CalendarAdapter calendarAdapter;
     private Calendar calendar;
     private List<Day> dayList = new ArrayList<>();
-    private Button btnPrevMonth, btnNextMonth, btnNextToTime;
+    private ImageButton btnPrevMonth, btnNextMonth;
+    private Button btnNextToTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,8 +35,17 @@ public class ScheduleConsultationActivity extends AppCompatActivity {
         btnNextMonth = findViewById(R.id.btnNextMonth);
         btnNextToTime = findViewById(R.id.btnNextToTime);
 
-        // Example doctor info (replace with real data)
-        tvDoctorInfo.setText("Dr. Juan Dela Cruz - Cardiology");
+        // --- Get doctor info from intent ---
+        String doctorName = getIntent().getStringExtra("doctorName");
+        String doctorSpecialty = getIntent().getStringExtra("doctorSpecialty");
+
+        if (doctorName != null && doctorSpecialty != null) {
+            tvDoctorInfo.setText(doctorName + " - " + doctorSpecialty);
+        } else if (doctorName != null) {
+            tvDoctorInfo.setText(doctorName);
+        } else {
+            tvDoctorInfo.setText("No doctor selected");
+        }
 
         // Calendar setup
         calendar = Calendar.getInstance();
@@ -56,7 +69,24 @@ public class ScheduleConsultationActivity extends AppCompatActivity {
 
         // Next button (to time selection)
         btnNextToTime.setOnClickListener(v -> {
-            // TODO: open time selection activity
+            // Hanapin yung selected date
+            Day selectedDay = null;
+            for (Day d : dayList) {
+                if (d.isSelected()) {
+                    selectedDay = d;
+                    break;
+                }
+            }
+
+            if (selectedDay != null) {
+                Intent intent = new Intent(ScheduleConsultationActivity.this, TimeSelectionActivity.class);
+                intent.putExtra("doctorName", doctorName);
+                intent.putExtra("doctorSpecialty", doctorSpecialty);
+                intent.putExtra("selectedDate", selectedDay.getDay() + "/" + (selectedDay.getMonth() + 1) + "/" + selectedDay.getYear());
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Please select a date first", Toast.LENGTH_SHORT).show();
+            }
         });
 
         // Day selection in GridView

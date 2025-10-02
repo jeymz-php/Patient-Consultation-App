@@ -2,7 +2,7 @@ package com.example.patientinformationandonlineconsultationsystem;
 
 public class Day {
     private int day;
-    private int month; // 0-indexed: January = 0
+    private int month;
     private int year;
     private boolean isSelected;
 
