@@ -1,33 +1,38 @@
 package com.example.patientinformationandonlineconsultationsystem;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class DoctorsListActivity extends AppCompatActivity {
+public class DoctorsListActivity extends BaseActivity { // ✅ now extends BaseActivity
 
     private RecyclerView recyclerDoctors;
     private DoctorsAdapter adapter;
     private List<Doctor> doctors = new ArrayList<>();
 
-    private static final String API_URL = "http://192.168.100.2/patient-consultation-mobile/get_doctors.php";
+    // ⚠️ Make sure this matches your actual XAMPP IP
+    private static final String API_URL = "http://192.168.1.12/patient-consultation-mobile/get_doctors.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_doctors_list);
+
+        // ✅ Setup sidebar from BaseActivity
+        setupDrawer();
 
         recyclerDoctors = findViewById(R.id.recyclerDoctors);
         recyclerDoctors.setLayoutManager(new LinearLayoutManager(this));
@@ -53,15 +58,15 @@ public class DoctorsListActivity extends AppCompatActivity {
                     try {
                         String status = response.getString("status");
                         if (status.equals("success")) {
-                            JSONArray data = response.getJSONArray("doctors"); // <-- changed from 'data'
+                            JSONArray data = response.getJSONArray("doctors");
                             doctors.clear();
                             for (int i = 0; i < data.length(); i++) {
                                 JSONObject obj = data.getJSONObject(i);
                                 doctors.add(new Doctor(
-                                        obj.getInt("id"),
-                                        obj.getString("name"),
+                                        obj.getInt("doctor_id"),             // ✅ changed
+                                        obj.getString("doctor_name"),        // ✅ changed
                                         obj.getString("specialization"),
-                                        obj.getString("contact"),
+                                        obj.getString("contact_number"),     // ✅ changed
                                         obj.getString("email")
                                 ));
                             }
