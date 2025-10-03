@@ -1,11 +1,18 @@
 package com.example.patientinformationandonlineconsultationsystem;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,10 +20,9 @@ public class DoctorsListActivity extends AppCompatActivity {
 
     private RecyclerView recyclerDoctors;
     private DoctorsAdapter adapter;
-    private int id;
-    private String name;
-    private String specialization;
+    private List<Doctor> doctors = new ArrayList<>();
 
+    private static final String API_URL = "http://192.168.100.2/patient-consultation-mobile/get_doctors.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,19 +32,53 @@ public class DoctorsListActivity extends AppCompatActivity {
         recyclerDoctors = findViewById(R.id.recyclerDoctors);
         recyclerDoctors.setLayoutManager(new LinearLayoutManager(this));
 
-        List<Doctor> doctors = new ArrayList<>();
-        doctors.add(new Doctor(1, "Dr. Juan Dela Cruz", "Cardiologist", "10 years", "09123456789", "juan@email.com"));
-        doctors.add(new Doctor(2, "Dr. Maria Santos", "Dermatologist", "8 years", "09987654321", "maria@email.com"));
-        doctors.add(new Doctor(3, "Dr. Jose Rizal", "Neurologist", "15 years", "09876543210", "jose@email.com"));
-
         adapter = new DoctorsAdapter(doctors, doctor -> {
             Intent intent = new Intent(DoctorsListActivity.this, ScheduleConsultationActivity.class);
-            intent.putExtra("doctorId", doctor.getId()); // new
+            intent.putExtra("doctorId", doctor.getId());
             intent.putExtra("doctorName", doctor.getName());
             intent.putExtra("doctorSpecialty", doctor.getSpecialization());
             startActivity(intent);
         });
 
         recyclerDoctors.setAdapter(adapter);
+
+        fetchDoctorsFromServer();
+    }
+
+    private void fetchDoctorsFromServer() {
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, API_URL, null,
+                response -> {
+                    try {
+                        String status = response.getString("status");
+                        if (status.equals("success")) {
+                            JSONArray data = response.getJSONArray("doctors"); // <-- changed from 'data'
+                            doctors.clear();
+                            for (int i = 0; i < data.length(); i++) {
+                                JSONObject obj = data.getJSONObject(i);
+                                doctors.add(new Doctor(
+                                        obj.getInt("id"),
+                                        obj.getString("name"),
+                                        obj.getString("specialization"),
+                                        obj.getString("contact"),
+                                        obj.getString("email")
+                                ));
+                            }
+                            adapter.notifyDataSetChanged();
+                        } else {
+                            Toast.makeText(this, response.getString("message"), Toast.LENGTH_LONG).show();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(this, "Error parsing data", Toast.LENGTH_LONG).show();
+                    }
+                },
+                error -> {
+                    error.printStackTrace();
+                    Toast.makeText(this, "Error fetching doctors", Toast.LENGTH_LONG).show();
+                });
+
+        queue.add(request);
     }
 }

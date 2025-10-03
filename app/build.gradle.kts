@@ -34,6 +34,8 @@ android {
 dependencies {
 
     implementation("com.android.volley:volley:1.2.1")
+    implementation("androidx.cardview:cardview:1.0.0")
+    implementation("androidx.recyclerview:recyclerview:1.3.1")
 
     implementation(libs.appcompat)
     implementation(libs.material)

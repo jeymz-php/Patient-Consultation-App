@@ -47,7 +47,6 @@ public class DoctorsAdapter extends RecyclerView.Adapter<DoctorsAdapter.DoctorVi
             super(itemView);
             tvDoctorName = itemView.findViewById(R.id.tvDoctorName);
             tvSpecialization = itemView.findViewById(R.id.tvSpecialization);
-            tvExperience = itemView.findViewById(R.id.tvExperience);
             tvContact = itemView.findViewById(R.id.tvContact);
             tvEmail = itemView.findViewById(R.id.tvEmail);
         }
@@ -55,7 +54,6 @@ public class DoctorsAdapter extends RecyclerView.Adapter<DoctorsAdapter.DoctorVi
         void bind(final Doctor doctor, final OnDoctorClickListener listener) {
             tvDoctorName.setText(doctor.getName());
             tvSpecialization.setText(doctor.getSpecialization());
-            tvExperience.setText(doctor.getExperience());
             tvContact.setText(doctor.getContact());
             tvEmail.setText(doctor.getEmail());
 

@@ -3,7 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:fitsSystemWindows="true">
+
+    <View
+        android:id="@+id/topRectangle"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:background="#E87C00" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerDoctors"

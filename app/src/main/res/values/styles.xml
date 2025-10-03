@@ -1,5 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- App Main Theme -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Status bar color -->
+        <item name="android:statusBarColor">@color/orange</item>
+        <!-- Use white icons/text on status bar -->
+        <item name="android:windowLightStatusBar">false</item>
+        <!-- Optional: remove ActionBar for all activities -->
+    </style>
+
+    <!-- Existing TimeSlotButton style -->
     <style name="TimeSlotButton">
         <item name="android:background">@drawable/btn_time_slot_bg</item>
         <item name="android:textColor">#E87C00</item>
