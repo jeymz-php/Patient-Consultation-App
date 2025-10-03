@@ -19,6 +19,9 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+
+import org.json.JSONObject;
+
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +38,8 @@ public class PatientInformationActivity extends AppCompatActivity {
     private Button btnSubmit;
 
     // API URL - Change this to your server URL
-    private static final String API_URL = "http://192.168.100.2/patient_api/save_patient.php";
+    private static final String SAVE_API_URL = "http://192.168.100.2/patient-consultation-mobile/save_patient.php";
+    private static final String UPDATE_API_URL = "http://192.168.100.2/patient-consultation-mobile/update_patient.php";
 
     private boolean isEditMode = false;
 
@@ -242,43 +246,93 @@ public class PatientInformationActivity extends AppCompatActivity {
     private void submitPatientData() {
         // Show loading
         btnSubmit.setEnabled(false);
-        btnSubmit.setText("Submitting...");
+        btnSubmit.setText(isEditMode ? "Updating..." : "Submitting...");
 
         // Save data locally first
         savePatientDataLocally();
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, API_URL,
+        // ✅ Use different API for Save vs Update
+        String url = isEditMode ? UPDATE_API_URL : SAVE_API_URL;
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 response -> {
-                    // Success
                     btnSubmit.setEnabled(true);
                     btnSubmit.setText(isEditMode ? "Update Information" : "Submit");
 
-                    String message = isEditMode ?
-                            "Patient information updated successfully!" :
-                            "Patient information saved successfully!";
+                    String raw = response == null ? "" : response.trim();
 
-                    Toast.makeText(PatientInformationActivity.this,
-                            message, Toast.LENGTH_LONG).show();
+                    // If it doesn't start with '{' it's not JSON. Show raw response for debugging.
+                    if (!raw.startsWith("{")) {
+                        // Show full raw response in a Toast (may be long) and log it.
+                        Toast.makeText(PatientInformationActivity.this,
+                                "Server returned non-JSON response. Check Logcat.", Toast.LENGTH_LONG).show();
+                        android.util.Log.d("API_RAW_RESPONSE", raw);
+                        return;
+                    }
 
-                    // Navigate to Patient Profile View
-                    Intent intent = new Intent(PatientInformationActivity.this, PatientProfileActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
+                    try {
+                        JSONObject jsonResponse = new JSONObject(raw);
+
+                        if (jsonResponse.optBoolean("success", false)) {
+                            String residentId = jsonResponse.optString("resident_id", "");
+                            String patientId = jsonResponse.optString("patient_id", "");
+
+                            SharedPreferences prefs = getSharedPreferences("PatientPrefs", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putString("resident_id", residentId);
+                            editor.putString("patient_id", patientId);
+                            editor.apply();
+
+                            String message = jsonResponse.optString("message", "Saved successfully");
+                            Toast.makeText(PatientInformationActivity.this, message, Toast.LENGTH_LONG).show();
+
+                            Intent intent = new Intent(PatientInformationActivity.this, PatientProfileActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            Toast.makeText(PatientInformationActivity.this,
+                                    "Failed: " + jsonResponse.optString("message", "Unknown error"),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(PatientInformationActivity.this,
+                                "Response parse error: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show();
+                    }
                 },
                 error -> {
-                    // Error
                     btnSubmit.setEnabled(true);
-                    btnSubmit.setText("Submit");
+                    btnSubmit.setText(isEditMode ? "Update Information" : "Submit");
 
                     Toast.makeText(PatientInformationActivity.this,
                             "Error: " + error.getMessage(), Toast.LENGTH_LONG).show();
                 }) {
             @Override
             protected Map<String, String> getParams() {
+
+
                 Map<String, String> params = new HashMap<>();
+
+                SharedPreferences prefs = getSharedPreferences("PatientPrefs", MODE_PRIVATE);
+                String residentId = prefs.getString("resident_id", "");
+                String patientId = prefs.getString("patient_id", "");
+
+                android.util.Log.d("API_DEBUG", "Sending IDs → resident_id: " + residentId + " | patient_id: " + patientId);
+
+                params.put("resident_id", residentId);
+                params.put("patient_id", patientId);
+
+                // Only include if not empty
+                if (!TextUtils.isEmpty(residentId)) {
+                    params.put("resident_id", residentId);
+                }
+                if (!TextUtils.isEmpty(patientId)) {
+                    params.put("patient_id", patientId);
+                }
 
                 // Personal Information
                 params.put("first_name", etFirstName.getText().toString().trim());
@@ -286,14 +340,14 @@ public class PatientInformationActivity extends AppCompatActivity {
                 params.put("last_name", etLastName.getText().toString().trim());
                 params.put("date_of_birth", etDob.getText().toString().trim());
                 params.put("gender", spinnerSex.getSelectedItem().toString());
-                params.put("height", etHeight.getText().toString().trim());
-                params.put("weight", etWeight.getText().toString().trim());
                 params.put("civil_status", spinnerMaritalStatus.getSelectedItem().toString());
-
-                // Contact Information
                 params.put("contact_number", etContactNumber.getText().toString().trim());
                 params.put("email", etEmail.getText().toString().trim());
                 params.put("address", etAddress.getText().toString().trim());
+
+                // Health Data
+                params.put("height", etHeight.getText().toString().trim());
+                params.put("weight", etWeight.getText().toString().trim());
 
                 // Medications
                 int selectedMedId = radioMedications.getCheckedRadioButtonId();
