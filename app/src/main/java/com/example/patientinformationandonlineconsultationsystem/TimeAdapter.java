@@ -7,13 +7,15 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
+
 import java.util.List;
 
 public class TimeAdapter extends BaseAdapter {
 
     private Context context;
     private List<String> timeSlots;
-    private int selectedPosition = -1; // -1 means no selection yet
+    private int selectedPosition = -1;
 
     public TimeAdapter(Context context, List<String> timeSlots) {
         this.context = context;
@@ -62,13 +64,12 @@ public class TimeAdapter extends BaseAdapter {
 
         holder.tvTimeSlot.setText(timeSlots.get(position));
 
-        // Change background if selected
         if (position == selectedPosition) {
             holder.tvTimeSlot.setBackgroundResource(R.drawable.bg_time_selected);
-            holder.tvTimeSlot.setTextColor(context.getResources().getColor(android.R.color.white));
+            holder.tvTimeSlot.setTextColor(ContextCompat.getColor(context, android.R.color.white));
         } else {
             holder.tvTimeSlot.setBackgroundResource(R.drawable.bg_time_normal);
-            holder.tvTimeSlot.setTextColor(context.getResources().getColor(android.R.color.black));
+            holder.tvTimeSlot.setTextColor(ContextCompat.getColor(context, android.R.color.black));
         }
 
         return convertView;

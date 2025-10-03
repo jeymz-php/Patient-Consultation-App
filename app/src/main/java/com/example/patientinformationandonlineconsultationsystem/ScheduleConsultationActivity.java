@@ -2,12 +2,16 @@ package com.example.patientinformationandonlineconsultationsystem;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.Button;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -15,12 +19,14 @@ import java.util.List;
 public class ScheduleConsultationActivity extends AppCompatActivity {
 
     private TextView tvMonthYearTitle, tvDoctorInfo;
-    private GridView calendarGrid;
-    private CalendarAdapter calendarAdapter;
+    private RecyclerView calendarRecyclerView;
+    private DaysAdapter daysAdapter;
     private Calendar calendar;
-    private List<Day> dayList = new ArrayList<>();
-    private ImageButton btnPrevMonth, btnNextMonth;
+    private List<Day> days = new ArrayList<>();
     private Button btnNextToTime;
+
+    private int doctorId;  // <<-- add this
+    private String doctorName, doctorSpecialization;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,20 +35,20 @@ public class ScheduleConsultationActivity extends AppCompatActivity {
 
         // Views
         tvMonthYearTitle = findViewById(R.id.tvMonthYearTitle);
-        calendarGrid = findViewById(R.id.calendarGrid);
         tvDoctorInfo = findViewById(R.id.tvDoctorInfo);
-        btnPrevMonth = findViewById(R.id.btnPrevMonth);
-        btnNextMonth = findViewById(R.id.btnNextMonth);
         btnNextToTime = findViewById(R.id.btnNextToTime);
+        calendarRecyclerView = findViewById(R.id.calendarRecyclerView);
+
+        ImageButton btnPrevMonth = findViewById(R.id.btnPrevMonth);
+        ImageButton btnNextMonth = findViewById(R.id.btnNextMonth);
 
         // --- Get doctor info from intent ---
-        String doctorName = getIntent().getStringExtra("doctorName");
-        String doctorSpecialty = getIntent().getStringExtra("doctorSpecialty");
+        doctorId = getIntent().getIntExtra("doctorId", -1);
+        doctorName = getIntent().getStringExtra("doctorName");
+        doctorSpecialization = getIntent().getStringExtra("doctorSpecialty");
 
-        if (doctorName != null && doctorSpecialty != null) {
-            tvDoctorInfo.setText(doctorName + " - " + doctorSpecialty);
-        } else if (doctorName != null) {
-            tvDoctorInfo.setText(doctorName);
+        if (doctorName != null && doctorSpecialization != null) {
+            tvDoctorInfo.setText("👨‍⚕️ " + doctorName + " - " + doctorSpecialization);
         } else {
             tvDoctorInfo.setText("No doctor selected");
         }
@@ -51,27 +57,30 @@ public class ScheduleConsultationActivity extends AppCompatActivity {
         calendar = Calendar.getInstance();
         generateCalendar();
 
-        calendarAdapter = new CalendarAdapter(this, dayList);
-        calendarGrid.setAdapter(calendarAdapter);
+        daysAdapter = new DaysAdapter(days, selectedDay -> {
+            // Just select the day, handled in adapter
+        });
+
+        calendarRecyclerView.setLayoutManager(new GridLayoutManager(this, 7));
+        calendarRecyclerView.setAdapter(daysAdapter);
 
         // Month navigation buttons
         btnPrevMonth.setOnClickListener(v -> {
             calendar.add(Calendar.MONTH, -1);
             generateCalendar();
-            calendarAdapter.updateDays(dayList);
+            daysAdapter.notifyDataSetChanged();
         });
 
         btnNextMonth.setOnClickListener(v -> {
             calendar.add(Calendar.MONTH, 1);
             generateCalendar();
-            calendarAdapter.updateDays(dayList);
+            daysAdapter.notifyDataSetChanged();
         });
 
-        // Next button (to time selection)
+        // Next button (go to time selection)
         btnNextToTime.setOnClickListener(v -> {
-            // Hanapin yung selected date
             Day selectedDay = null;
-            for (Day d : dayList) {
+            for (Day d : days) {
                 if (d.isSelected()) {
                     selectedDay = d;
                     break;
@@ -80,28 +89,20 @@ public class ScheduleConsultationActivity extends AppCompatActivity {
 
             if (selectedDay != null) {
                 Intent intent = new Intent(ScheduleConsultationActivity.this, TimeSelectionActivity.class);
+                intent.putExtra("doctorId", doctorId);
                 intent.putExtra("doctorName", doctorName);
-                intent.putExtra("doctorSpecialty", doctorSpecialty);
-                intent.putExtra("selectedDate", selectedDay.getDay() + "/" + (selectedDay.getMonth() + 1) + "/" + selectedDay.getYear());
+                intent.putExtra("doctorSpecialty", doctorSpecialization);
+                intent.putExtra("selectedDate",
+                        selectedDay.getDay() + "/" + (selectedDay.getMonth() + 1) + "/" + selectedDay.getYear());
                 startActivity(intent);
             } else {
                 Toast.makeText(this, "Please select a date first", Toast.LENGTH_SHORT).show();
             }
         });
-
-        // Day selection in GridView
-        calendarGrid.setOnItemClickListener((parent, view, position, id) -> {
-            Day selectedDay = dayList.get(position);
-            if (selectedDay.getDay() != 0) {
-                for (Day d : dayList) d.setSelected(false);
-                selectedDay.setSelected(true);
-                calendarAdapter.updateDays(dayList);
-            }
-        });
     }
 
     private void generateCalendar() {
-        dayList.clear();
+        days.clear();
 
         int month = calendar.get(Calendar.MONTH);
         int year = calendar.get(Calendar.YEAR);
@@ -114,18 +115,18 @@ public class ScheduleConsultationActivity extends AppCompatActivity {
         int firstDayOfWeek = tempCal.get(Calendar.DAY_OF_WEEK) - 1; // Sunday = 0
         int daysInMonth = tempCal.getActualMaximum(Calendar.DAY_OF_MONTH);
 
-        // Empty days for offset
+        // Fill empty slots before start of month
         for (int i = 0; i < firstDayOfWeek; i++) {
-            dayList.add(new Day(0, month, year));
+            days.add(new Day(0, month, year)); // empty placeholder
         }
 
-        // Add actual days
+        // Fill actual days
         for (int i = 1; i <= daysInMonth; i++) {
-            dayList.add(new Day(i, month, year));
+            days.add(new Day(i, month, year));
         }
     }
 
     private String getMonthName(int month) {
-        return new java.text.DateFormatSymbols().getMonths()[month];
+        return new DateFormatSymbols().getMonths()[month];
     }
 }

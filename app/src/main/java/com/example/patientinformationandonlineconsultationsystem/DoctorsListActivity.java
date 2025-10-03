@@ -13,6 +13,10 @@ public class DoctorsListActivity extends AppCompatActivity {
 
     private RecyclerView recyclerDoctors;
     private DoctorsAdapter adapter;
+    private int id;
+    private String name;
+    private String specialization;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,15 +27,15 @@ public class DoctorsListActivity extends AppCompatActivity {
         recyclerDoctors.setLayoutManager(new LinearLayoutManager(this));
 
         List<Doctor> doctors = new ArrayList<>();
-        doctors.add(new Doctor("Dr. Juan Dela Cruz", "Cardiologist", "10 years", "09123456789", "juan@email.com"));
-        doctors.add(new Doctor("Dr. Maria Santos", "Dermatologist", "8 years", "09987654321", "maria@email.com"));
-        doctors.add(new Doctor("Dr. Jose Rizal", "Neurologist", "15 years", "09876543210", "jose@email.com"));
+        doctors.add(new Doctor(1, "Dr. Juan Dela Cruz", "Cardiologist", "10 years", "09123456789", "juan@email.com"));
+        doctors.add(new Doctor(2, "Dr. Maria Santos", "Dermatologist", "8 years", "09987654321", "maria@email.com"));
+        doctors.add(new Doctor(3, "Dr. Jose Rizal", "Neurologist", "15 years", "09876543210", "jose@email.com"));
 
         adapter = new DoctorsAdapter(doctors, doctor -> {
-            Log.d("DoctorsListActivity", "Clicked: " + doctor.getName());
             Intent intent = new Intent(DoctorsListActivity.this, ScheduleConsultationActivity.class);
+            intent.putExtra("doctorId", doctor.getId()); // new
             intent.putExtra("doctorName", doctor.getName());
-            intent.putExtra("specialization", doctor.getSpecialization());
+            intent.putExtra("doctorSpecialty", doctor.getSpecialization());
             startActivity(intent);
         });
 

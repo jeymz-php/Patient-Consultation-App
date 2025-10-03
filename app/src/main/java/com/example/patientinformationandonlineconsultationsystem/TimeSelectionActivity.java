@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,13 +22,35 @@ public class TimeSelectionActivity extends AppCompatActivity {
     private String selectedTime = null;
     private Button btnNextToConfirmation;
 
+    private TextView tvSelectedDoctor, tvSelectedDate;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_time_selection);
 
+        // Views
         gridView = findViewById(R.id.gridView);
         btnNextToConfirmation = findViewById(R.id.btnNextToConfirmation);
+        tvSelectedDoctor = findViewById(R.id.tvSelectedDoctor);
+        tvSelectedDate = findViewById(R.id.tvSelectedDate);
+
+        int doctorId = getIntent().getIntExtra("doctorId", -1);
+        String doctorName = getIntent().getStringExtra("doctorName");
+        String doctorSpecialty = getIntent().getStringExtra("doctorSpecialty");
+        String selectedDate = getIntent().getStringExtra("selectedDate");
+
+        if (doctorName != null && doctorSpecialty != null) {
+            tvSelectedDoctor.setText("Doctor: " + doctorName + " - " + doctorSpecialty);
+        } else {
+            tvSelectedDoctor.setText("Doctor: -");
+        }
+
+        if (selectedDate != null) {
+            tvSelectedDate.setText("Date: " + selectedDate);
+        } else {
+            tvSelectedDate.setText("Date: -");
+        }
 
         // Sample time slots
         timeSlots = new ArrayList<>();
@@ -57,17 +80,20 @@ public class TimeSelectionActivity extends AppCompatActivity {
             }
         });
 
-        // Handle Next button → go to ConfirmationActivity
+        // Back button
+        Button btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> finish());
+
+        // Next button → ConfirmationActivity
         btnNextToConfirmation.setOnClickListener(v -> {
             if (selectedTime != null) {
                 Intent intent = new Intent(TimeSelectionActivity.this, ConfirmationActivity.class);
 
-                // Pass doctor info + selected date from previous activity
-                intent.putExtra("doctorName", getIntent().getStringExtra("doctorName"));
-                intent.putExtra("specialization", getIntent().getStringExtra("specialization"));
-                intent.putExtra("selectedDate", getIntent().getStringExtra("selectedDate"));
-
-                // Pass selected time from this activity
+                // Pass doctor info + selected date
+                intent.putExtra("doctorId", doctorId);
+                intent.putExtra("doctorName", doctorName);
+                intent.putExtra("doctorSpecialty", doctorSpecialty);
+                intent.putExtra("selectedDate", selectedDate);
                 intent.putExtra("selectedTime", selectedTime);
 
                 startActivity(intent);
