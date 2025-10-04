@@ -24,7 +24,7 @@ public class DoctorsListActivity extends BaseActivity { // ✅ now extends BaseA
     private List<Doctor> doctors = new ArrayList<>();
 
     // ⚠️ Make sure this matches your actual XAMPP IP
-    private static final String API_URL = "http://192.168.1.12/patient-consultation-mobile/get_doctors.php";
+    private static final String API_URL = "http://192.168.100.2/patient-consultation-mobile/get_doctors.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +41,7 @@ public class DoctorsListActivity extends BaseActivity { // ✅ now extends BaseA
             Intent intent = new Intent(DoctorsListActivity.this, ScheduleConsultationActivity.class);
             intent.putExtra("doctorId", doctor.getId());
             intent.putExtra("doctorName", doctor.getName());
-            intent.putExtra("doctorSpecialty", doctor.getSpecialization());
+            intent.putExtra("doctorSpecialization", doctor.getSpecialization());
             startActivity(intent);
         });
 
@@ -58,16 +58,16 @@ public class DoctorsListActivity extends BaseActivity { // ✅ now extends BaseA
                     try {
                         String status = response.getString("status");
                         if (status.equals("success")) {
-                            JSONArray data = response.getJSONArray("doctors");
+                            JSONArray data = response.getJSONArray("doctors"); // matches PHP
                             doctors.clear();
                             for (int i = 0; i < data.length(); i++) {
                                 JSONObject obj = data.getJSONObject(i);
                                 doctors.add(new Doctor(
-                                        obj.getInt("doctor_id"),             // ✅ changed
-                                        obj.getString("doctor_name"),        // ✅ changed
-                                        obj.getString("specialization"),
-                                        obj.getString("contact_number"),     // ✅ changed
-                                        obj.getString("email")
+                                        obj.getInt("id"),                     // from PHP 'id'
+                                        obj.getString("name"),                // from PHP 'name'
+                                        obj.getString("specialization"),      // from PHP 'specialization'
+                                        obj.getString("contact"),             // from PHP 'contact'
+                                        obj.getString("email")                // from PHP 'email'
                                 ));
                             }
                             adapter.notifyDataSetChanged();

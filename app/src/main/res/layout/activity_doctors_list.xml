@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Toolbar (required for BaseActivity) -->
+        <!-- Toolbar -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -32,13 +32,16 @@
             android:scrollbars="vertical"/>
     </LinearLayout>
 
-    <!-- Drawer menu -->
+    <!-- Navigation Drawer -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="280dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/drawer_header"
         app:menu="@menu/drawer_menu"
-        android:background="@android:color/white"/>
+        android:background="#E87C00"
+        android:fitsSystemWindows="true"
+        app:itemBackground="@color/drawer_item_background" />
+
 </androidx.drawerlayout.widget.DrawerLayout>

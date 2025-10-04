@@ -1,6 +1,7 @@
 package com.example.patientinformationandonlineconsultationsystem;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 import androidx.annotation.NonNull;
@@ -50,11 +51,24 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
             startActivity(new Intent(this, MainActivity.class));
         } else if (id == R.id.nav_consultations) {
             startActivity(new Intent(this, ConsultationLogsActivity.class));
-        } else if (id == R.id.nav_messages) {
+        } else if (id == R.id.nav_doctors) {
             startActivity(new Intent(this, DoctorsListActivity.class));
-        } else if (id == R.id.nav_settings) {
-            startActivity(new Intent(this, PatientInformationActivity.class));
+        } else if (id == R.id.nav_patient_info) {
+            // Check if patient info exists in SharedPreferences
+            SharedPreferences prefs = getSharedPreferences("PatientData", MODE_PRIVATE);
+            boolean hasPatientData = prefs.getBoolean("has_patient_data", false);
+
+            Intent intent;
+            if (hasPatientData) {
+                // If patient data exists, go to profile activity
+                intent = new Intent(this, PatientProfileActivity.class);
+            } else {
+                // If no data exists, open form to fill new patient info
+                intent = new Intent(this, PatientInformationActivity.class);
+            }
+            startActivity(intent);
         }
+
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;

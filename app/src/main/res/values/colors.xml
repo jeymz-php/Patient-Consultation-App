@@ -6,4 +6,9 @@
     <color name="teal_700">#018786</color>
     <color name="orange1">#E87C00</color>
     <color name="orange">#E87C00</color>
+
+    <!-- New orange color -->
+    <color name="colorPrimary">#E87C00</color>
+    <color name="colorPrimaryDark">#C46A00</color>
+    <color name="colorAccent">#E87C00</color>
 </resources>

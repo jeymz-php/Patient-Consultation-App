@@ -1,17 +1,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
     <item
         android:id="@+id/nav_dashboard"
-        android:title="Dashboard" />
+        android:title="Dashboard"
+        android:icon="@drawable/ic_dashboard" />
 
     <item
         android:id="@+id/nav_consultations"
-        android:title="Consultation log" />
+        android:title="Consultation Log"
+        android:icon="@drawable/ic_consultation" />
 
     <item
-        android:id="@+id/nav_messages"
-        android:title="Doctors"/>
+        android:id="@+id/nav_doctors"
+        android:title="Doctors"
+        android:icon="@drawable/ic_doctor" />
 
     <item
-        android:id="@+id/nav_settings"
-        android:title="Patient Information" />
+        android:id="@+id/nav_patient_info"
+        android:title="Patient Information"
+        android:icon="@drawable/ic_patient" />
+
 </menu>
