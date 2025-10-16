@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Header -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enter Tracking Number"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="4dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Please enter your 8-digit tracking number"
+        android:textColor="#666666"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Tracking Number Inputs - Simple and Clean -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:layout_marginBottom="12dp"
+        android:padding="8dp">
+
+        <!-- Letter 1 -->
+        <EditText
+            android:id="@+id/etTrack1"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="2dp"
+            android:inputType="textCapCharacters"
+            android:maxLength="1"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="@drawable/edittext_tracking_bg"
+            android:textColor="@android:color/black"
+            android:cursorVisible="false" />
+
+        <!-- Letter 2 -->
+        <EditText
+            android:id="@+id/etTrack2"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="6dp"
+            android:inputType="textCapCharacters"
+            android:maxLength="1"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="@drawable/edittext_tracking_bg"
+            android:textColor="@android:color/black"
+            android:cursorVisible="false" />
+
+        <!-- Number 1 -->
+        <EditText
+            android:id="@+id/etTrack3"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="2dp"
+            android:inputType="number"
+            android:maxLength="1"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="@drawable/edittext_tracking_bg"
+            android:textColor="@android:color/black"
+            android:cursorVisible="false" />
+
+        <!-- Number 2 -->
+        <EditText
+            android:id="@+id/etTrack4"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="2dp"
+            android:inputType="number"
+            android:maxLength="1"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="@drawable/edittext_tracking_bg"
+            android:textColor="@android:color/black"
+            android:cursorVisible="false" />
+
+        <!-- Number 3 -->
+        <EditText
+            android:id="@+id/etTrack5"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="2dp"
+            android:inputType="number"
+            android:maxLength="1"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="@drawable/edittext_tracking_bg"
+            android:textColor="@android:color/black"
+            android:cursorVisible="false" />
+
+        <!-- Number 4 -->
+        <EditText
+            android:id="@+id/etTrack6"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="2dp"
+            android:inputType="number"
+            android:maxLength="1"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="@drawable/edittext_tracking_bg"
+            android:textColor="@android:color/black"
+            android:cursorVisible="false" />
+
+        <!-- Number 5 -->
+        <EditText
+            android:id="@+id/etTrack7"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="2dp"
+            android:inputType="number"
+            android:maxLength="1"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="@drawable/edittext_tracking_bg"
+            android:textColor="@android:color/black"
+            android:cursorVisible="false" />
+
+        <!-- Number 6 -->
+        <EditText
+            android:id="@+id/etTrack8"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:inputType="number"
+            android:maxLength="1"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="@drawable/edittext_tracking_bg"
+            android:textColor="@android:color/black"
+            android:cursorVisible="false" />
+
+    </LinearLayout>
+
+    <!-- Format Indicator -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:layout_marginBottom="8dp"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LL"
+            android:textColor="#E87C00"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="2dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-"
+            android:textColor="#666666"
+            android:textSize="10sp"
+            android:layout_marginEnd="2dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NNNNNN"
+            android:textColor="#E87C00"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <!-- Example Text -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Example: AB123456"
+        android:textColor="#666666"
+        android:textSize="10sp"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Confirm Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnConfirmTracking"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="Confirm Ticket Number"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:backgroundTint="#E87C00"
+        app:cornerRadius="20dp" />
+
+</LinearLayout>

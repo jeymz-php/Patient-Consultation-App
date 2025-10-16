@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Header -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Data Privacy Act of 2012"
+            android:textColor="@android:color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Privacy Content -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/data_privacy_content"
+            android:textColor="#666666"
+            android:textSize="14sp"
+            android:lineSpacingExtra="4sp"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Agreement Checkbox -->
+        <CheckBox
+            android:id="@+id/checkBoxPrivacy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="I have read and understood the Data Privacy Act of 2012 and consent to the collection and processing of my personal information."
+            android:textColor="@android:color/black"
+            android:textSize="13sp"
+            android:buttonTint="#E87C00"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Continue Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnContinue"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="Continue to Patient Information"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:backgroundTint="#E87C00"
+            app:cornerRadius="25dp" />
+
+    </LinearLayout>
+
+</ScrollView>

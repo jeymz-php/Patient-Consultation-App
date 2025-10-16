@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">Community Healthcare</string>
+
+    <string name="terms_and_conditions_content">
+    Welcome to our Community Healthcare App. By using this app, you agree to:\n\n
+    1. Use the app for legitimate healthcare purposes only\n
+    2. Provide accurate and complete information\n
+    3. Maintain the confidentiality of your login credentials\n
+    4. Not misuse the app for any illegal activities\n
+    5. Accept that telemedicine consultations have limitations\n\n
+    Your privacy is important to us. We protect your personal and health information in accordance with applicable laws and regulations.
+    </string>
+
+    <string name="tagline_innovation">Innovation for a Healthy Community</string>
+    <string name="mission_statement">Providing accessible healthcare services and online consultations to the residents of Caloocan City. Our mission is to ensure quality medical care for every individual in our community.</string>
+
+    <string name="data_privacy_content">
+    In compliance with the Data Privacy Act of 2012 (Republic Act No. 10173), we are committed to protect and respect your personal data privacy.\n\n
+
+    By providing your personal information, you consent to the collection, use, processing, and storage of your data for the following purposes:\n\n
+
+    • To provide healthcare services and medical consultations\n
+    • To maintain your medical records and history\n
+    • To schedule appointments and send reminders\n
+    • To communicate test results and medical updates\n
+    • For emergency contact purposes\n\n
+
+    Your personal information will be kept confidential and will only be accessed by authorized healthcare professionals involved in your care. We implement appropriate security measures to protect your data against unauthorized access, alteration, disclosure, or destruction.\n\n
+
+    You have the right to access, correct, and withdraw your personal data, subject to exceptions provided by law. For any concerns regarding your data privacy, please contact our Data Protection Officer.
+</string>
+</resources>
