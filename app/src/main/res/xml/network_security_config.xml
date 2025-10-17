@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Allow local and development domains (HTTP) -->
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- Localhost for emulator -->
+        <domain includeSubdomains="true">10.0.2.2</domain>
+
+        <!-- Your local IP (for physical device on same WiFi) -->
+        <domain includeSubdomains="true">192.168.0.0/16</domain>
+        <domain includeSubdomains="true">192.168.100.2</domain>
+
+        <!-- Optional: localhost for development -->
+        <domain includeSubdomains="true">localhost</domain>
+    </domain-config>
+</network-security-config>

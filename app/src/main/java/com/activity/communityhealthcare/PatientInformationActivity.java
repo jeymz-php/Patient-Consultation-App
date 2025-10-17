@@ -1,28 +1,39 @@
 package com.activity.communityhealthcare;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.DatePicker;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
-import java.util.Calendar;
+
+import org.json.JSONObject;
+
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 public class PatientInformationActivity extends AppCompatActivity {
+
+    private static final String TAG = "PatientInfoDebug";
 
     private TextInputEditText etFirstName, etLastName, etDateOfBirth, etHeight, etWeight;
     private TextInputEditText etContactNumber, etPatientAddress, etCity, etStateProvince;
@@ -30,6 +41,8 @@ public class PatientInformationActivity extends AppCompatActivity {
     private AutoCompleteTextView autoCompleteSex, autoCompleteMaritalStatus, autoCompleteBarangay;
     private AutoCompleteTextView autoCompleteRelationship, autoCompleteEmail;
     private MaterialButton btnSubmit;
+
+    private boolean isSubmitting = false;
 
     // Dropdown options
     private final String[] sexOptions = {"Male", "Female", "Other"};
@@ -40,50 +53,43 @@ public class PatientInformationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: Starting PatientInformationActivity");
 
-        // Check if user has accepted data privacy
+        // ✅ Check Data Privacy acceptance
         SharedPreferences prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE);
         boolean dataPrivacyAccepted = prefs.getBoolean("data_privacy_accepted", false);
+        Log.d(TAG, "Data privacy accepted: " + dataPrivacyAccepted);
 
         if (!dataPrivacyAccepted) {
-            // If not accepted, go back to dashboard
             Toast.makeText(this, "Please accept the Data Privacy policy first", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Data privacy not accepted. Finishing activity...");
             finish();
             return;
         }
 
-        // Set system bars (status bar and navigation bar)
         setSystemBars();
-
         setContentView(R.layout.activity_patient_information);
-
-        // Handle window insets for gesture navigation
         setupWindowInsets();
+
+        Log.d(TAG, "Layout loaded successfully");
 
         initializeViews();
         setupDropdowns();
         setupDatePicker();
         setupEmailAutoComplete();
-        setupSubmitButton();
+        setupButtons();
+
+        Log.d(TAG, "Activity setup complete");
     }
 
     private void setSystemBars() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
-
-            // Set status bar color
             window.setStatusBarColor(Color.parseColor("#C96A00"));
-
-            // Set navigation bar color to match background
             window.setNavigationBarColor(Color.parseColor("#F8F9FA"));
-
-            // For Android M and above - set dark status bar icons
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                View decor = window.getDecorView();
-                decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
             }
-
-            // For Android O and above - set light navigation bar icons
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 View decor = window.getDecorView();
                 int flags = decor.getSystemUiVisibility();
@@ -94,20 +100,12 @@ public class PatientInformationActivity extends AppCompatActivity {
     }
 
     private void setupWindowInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, insets) -> {
-            // Handle system bars insets
-            int statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
-            int navigationBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
-
-            // The XML already has padding, but you can programmatically adjust if necessary
-            // For example, if you need to adjust specific views
-
-            return WindowInsetsCompat.CONSUMED;
-        });
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content),
+                (v, insets) -> WindowInsetsCompat.CONSUMED);
     }
 
     private void initializeViews() {
-        // Personal Information
+        Log.d(TAG, "Initializing input fields...");
         etFirstName = findViewById(R.id.etFirstName);
         etLastName = findViewById(R.id.etLastName);
         etDateOfBirth = findViewById(R.id.etDateOfBirth);
@@ -117,43 +115,27 @@ public class PatientInformationActivity extends AppCompatActivity {
         etPatientAddress = findViewById(R.id.etPatientAddress);
         etCity = findViewById(R.id.etCity);
         etStateProvince = findViewById(R.id.etStateProvince);
-
-        // Emergency Contact
         etEmergencyFirstName = findViewById(R.id.etEmergencyFirstName);
         etEmergencyLastName = findViewById(R.id.etEmergencyLastName);
         etEmergencyContactNumber = findViewById(R.id.etEmergencyContactNumber);
-
-        // Dropdowns
         autoCompleteSex = findViewById(R.id.autoCompleteSex);
         autoCompleteMaritalStatus = findViewById(R.id.autoCompleteMaritalStatus);
         autoCompleteBarangay = findViewById(R.id.autoCompleteBarangay);
         autoCompleteRelationship = findViewById(R.id.autoCompleteRelationship);
         autoCompleteEmail = findViewById(R.id.autoCompleteEmail);
-
-        // Button
         btnSubmit = findViewById(R.id.btnSubmit);
     }
 
-    // Rest of your methods remain the same...
     private void setupDropdowns() {
-        // Sex dropdown
-        ArrayAdapter<String> sexAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, sexOptions);
-        autoCompleteSex.setAdapter(sexAdapter);
-
-        // Marital Status dropdown
-        ArrayAdapter<String> maritalAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, maritalStatusOptions);
-        autoCompleteMaritalStatus.setAdapter(maritalAdapter);
-
-        // Barangay dropdown
-        ArrayAdapter<String> barangayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, barangayOptions);
-        autoCompleteBarangay.setAdapter(barangayAdapter);
-
-        // Relationship dropdown
-        ArrayAdapter<String> relationshipAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, relationshipOptions);
-        autoCompleteRelationship.setAdapter(relationshipAdapter);
+        Log.d(TAG, "Setting up dropdowns...");
+        autoCompleteSex.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, sexOptions));
+        autoCompleteMaritalStatus.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, maritalStatusOptions));
+        autoCompleteBarangay.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, barangayOptions));
+        autoCompleteRelationship.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, relationshipOptions));
     }
 
     private void setupDatePicker() {
+        Log.d(TAG, "Configuring date picker...");
         etDateOfBirth.setOnClickListener(v -> showDatePickerDialog());
     }
 
@@ -163,69 +145,140 @@ public class PatientInformationActivity extends AppCompatActivity {
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(
+        DatePickerDialog dialog = new DatePickerDialog(
                 this,
-                (view, selectedYear, selectedMonth, selectedDay) -> {
-                    String selectedDate = (selectedMonth + 1) + "/" + selectedDay + "/" + selectedYear;
-                    etDateOfBirth.setText(selectedDate);
-                },
+                (view, y, m, d) -> etDateOfBirth.setText((m + 1) + "/" + d + "/" + y),
                 year, month, day
         );
-
-        // Set maximum date to today
-        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
-        datePickerDialog.show();
+        dialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+        dialog.show();
+        Log.d(TAG, "Date picker shown");
     }
 
     private void setupEmailAutoComplete() {
         autoCompleteEmail.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void afterTextChanged(Editable s) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String currentText = s.toString();
-                if (currentText.contains("@")) {
-                    showEmailSuggestions(currentText);
-                }
+                if (s.toString().contains("@")) showEmailSuggestions(s.toString());
             }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
         });
     }
 
     private void showEmailSuggestions(String currentText) {
         String[] userPart = currentText.split("@");
-        if (userPart.length > 0 && userPart[0].length() > 0) {
+        if (userPart.length > 0 && !userPart[0].isEmpty()) {
             String username = userPart[0];
             List<String> suggestions = Arrays.asList(
                     username + "@gmail.com",
                     username + "@yahoo.com",
                     username + "@outlook.com"
             );
-
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                    android.R.layout.simple_dropdown_item_1line, suggestions);
-
-            // Show dropdown - Now this will work because autoCompleteEmail is AutoCompleteTextView
-            autoCompleteEmail.setAdapter(adapter);
+            autoCompleteEmail.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, suggestions));
             autoCompleteEmail.showDropDown();
         }
     }
 
-    private void setupSubmitButton() {
+    private void setupButtons() {
+        Log.d(TAG, "Setting up submit button...");
         btnSubmit.setOnClickListener(v -> {
+            if (isSubmitting) {
+                Log.w(TAG, "Prevented duplicate submission");
+                return;
+            }
             if (validateForm()) {
+                isSubmitting = true;
+                btnSubmit.setEnabled(false);
+                btnSubmit.setText("Submitting...");
                 savePatientData();
-                Toast.makeText(this, "Patient information saved successfully!", Toast.LENGTH_SHORT).show();
-                finish();
+                submitToServer();
+            } else {
+                Log.w(TAG, "Form validation failed");
             }
         });
     }
 
+    private void submitToServer() {
+        String url = "http://192.168.100.2/communityhealthcare/app/register_patient.php";
+        Log.d(TAG, "Submitting to: " + url);
+
+        try {
+            JSONObject data = new JSONObject();
+            data.put("first_name", etFirstName.getText().toString().trim());
+            data.put("last_name", etLastName.getText().toString().trim());
+            data.put("date_of_birth", convertDateToMySQL(etDateOfBirth.getText().toString().trim()));
+            data.put("sex", autoCompleteSex.getText().toString().trim());
+            data.put("height", etHeight.getText().toString().trim());
+            data.put("weight", etWeight.getText().toString().trim());
+            data.put("marital_status", autoCompleteMaritalStatus.getText().toString().trim());
+            data.put("contact_number", etContactNumber.getText().toString().trim());
+            data.put("email", autoCompleteEmail.getText().toString().trim());
+            data.put("barangay", autoCompleteBarangay.getText().toString().trim());
+            data.put("address", etPatientAddress.getText().toString().trim());
+            data.put("city", etCity.getText().toString().trim());
+            data.put("state_province", etStateProvince.getText().toString().trim());
+            data.put("emergency_first_name", etEmergencyFirstName.getText().toString().trim());
+            data.put("emergency_last_name", etEmergencyLastName.getText().toString().trim());
+            data.put("emergency_relationship", autoCompleteRelationship.getText().toString().trim());
+            data.put("emergency_contact_number", etEmergencyContactNumber.getText().toString().trim());
+
+            Log.d(TAG, "Data to send: " + data.toString());
+
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, data,
+                    response -> {
+                        Log.d(TAG, "Server response: " + response);
+                        isSubmitting = false;
+                        btnSubmit.setEnabled(true);
+                        btnSubmit.setText("Submit");
+
+                        try {
+                            if (response.getString("status").equals("success")) {
+                                String trackingNumber = response.getString("tracking_number");
+                                Log.d(TAG, "Registration success! Tracking #: " + trackingNumber);
+
+                                SharedPreferences prefs = getSharedPreferences("PatientData", MODE_PRIVATE);
+                                prefs.edit().putString("tracking_number", trackingNumber).apply();
+
+                                Intent intent = new Intent(PatientInformationActivity.this, PatientInformationConfirmedActivity.class);
+                                intent.putExtra("tracking_number", trackingNumber);
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                Log.e(TAG, "Server returned error: " + response.getString("message"));
+                                Toast.makeText(this, response.getString("message"), Toast.LENGTH_LONG).show();
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error parsing server response: ", e);
+                            Toast.makeText(this, "Error parsing server response.", Toast.LENGTH_LONG).show();
+                        }
+                    },
+                    error -> {
+                        Log.e(TAG, "Network error: ", error);
+                        isSubmitting = false;
+                        btnSubmit.setEnabled(true);
+                        btnSubmit.setText("Submit");
+                        Toast.makeText(this, "Failed to connect to server.", Toast.LENGTH_LONG).show();
+                    });
+
+            request.setRetryPolicy(new com.android.volley.DefaultRetryPolicy(
+                    0, 0, 1f
+            ));
+
+            com.android.volley.RequestQueue queue = com.android.volley.toolbox.Volley.newRequestQueue(this);
+            queue.add(request);
+
+        } catch (Exception e) {
+            Log.e(TAG, "Unexpected error: ", e);
+            isSubmitting = false;
+            btnSubmit.setEnabled(true);
+            btnSubmit.setText("Submit");
+            Toast.makeText(this, "Unexpected error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private boolean validateForm() {
-        // Basic validation - you can expand this
+        Log.d(TAG, "Validating form...");
         if (etFirstName.getText().toString().trim().isEmpty()) {
             etFirstName.setError("First name is required");
             return false;
@@ -250,14 +303,15 @@ public class PatientInformationActivity extends AppCompatActivity {
             autoCompleteEmail.setError("Email is required");
             return false;
         }
+        Log.d(TAG, "Form validated successfully");
         return true;
     }
 
     private void savePatientData() {
+        Log.d(TAG, "Saving patient data locally...");
         SharedPreferences prefs = getSharedPreferences("PatientData", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
 
-        // Save all patient data
         editor.putString("first_name", etFirstName.getText().toString().trim());
         editor.putString("last_name", etLastName.getText().toString().trim());
         editor.putString("date_of_birth", etDateOfBirth.getText().toString().trim());
@@ -275,10 +329,19 @@ public class PatientInformationActivity extends AppCompatActivity {
         editor.putString("emergency_last_name", etEmergencyLastName.getText().toString().trim());
         editor.putString("emergency_relationship", autoCompleteRelationship.getText().toString().trim());
         editor.putString("emergency_contact_number", etEmergencyContactNumber.getText().toString().trim());
-
-        // Mark that patient data exists
         editor.putBoolean("has_patient_data", true);
-
         editor.apply();
+    }
+
+    private String convertDateToMySQL(String dateStr) {
+        try {
+            java.text.SimpleDateFormat inputFormat = new java.text.SimpleDateFormat("M/d/yyyy");
+            java.text.SimpleDateFormat outputFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
+            java.util.Date date = inputFormat.parse(dateStr);
+            return outputFormat.format(date);
+        } catch (Exception e) {
+            Log.e(TAG, "Date conversion error: ", e);
+            return dateStr;
+        }
     }
 }

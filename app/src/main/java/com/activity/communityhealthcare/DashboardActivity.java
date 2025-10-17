@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,10 +73,11 @@ public class DashboardActivity extends AppCompatActivity {
                             boolean hasPatientData = prefs.getBoolean("has_patient_data", false);
 
                             if (hasPatientData) {
-                                // If patient data already exists, go to profile
-                                // startActivity(new Intent(DashboardActivity.this, PatientProfileActivity.class));
+                                // ✅ Go directly to the Patient Profile screen
+                                Intent intent = new Intent(DashboardActivity.this, PatientProfileActivity.class);
+                                startActivity(intent);
                             } else {
-                                // If no patient data, show data privacy dialog first
+                                // ❗ Only show data privacy modal if no data saved yet
                                 showDataPrivacyDialog();
                             }
                         } else if (which == 2) {
@@ -130,14 +132,27 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
 
-        // Add text watchers to all input fields
+        // Add text watchers and key listeners to all input fields
         for (int i = 0; i < trackingInputs.length; i++) {
             final int currentIndex = i;
             EditText currentInput = trackingInputs[i];
 
             currentInput.addTextChangedListener(new TextWatcher() {
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    // Handle backspace when deleting the only character in a field
+                    if (count == 1 && after == 0 && s.length() == 1) {
+                        // Character is being deleted, move to previous field
+                        if (currentIndex > 0) {
+                            currentInput.post(() -> {
+                                trackingInputs[currentIndex - 1].requestFocus();
+                                trackingInputs[currentIndex - 1].setSelection(
+                                        trackingInputs[currentIndex - 1].getText().length()
+                                );
+                            });
+                        }
+                    }
+                }
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -145,13 +160,33 @@ public class DashboardActivity extends AppCompatActivity {
                     if (s.length() == 1 && currentIndex < trackingInputs.length - 1) {
                         trackingInputs[currentIndex + 1].requestFocus();
                     }
-
-                    // Check if all fields are filled
-                    checkAllFieldsFilled(trackingInputs, btnConfirmTracking);
                 }
 
                 @Override
-                public void afterTextChanged(Editable s) {}
+                public void afterTextChanged(Editable s) {
+                    // Check if all fields are filled
+                    checkAllFieldsFilled(trackingInputs, btnConfirmTracking);
+                }
+            });
+
+            // Additional key listener for hardware keyboard backspace
+            currentInput.setOnKeyListener(new View.OnKeyListener() {
+                @Override
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    if (keyCode == KeyEvent.KEYCODE_DEL && event.getAction() == KeyEvent.ACTION_DOWN) {
+                        EditText currentField = (EditText) v;
+
+                        // If current field is empty and backspace is pressed, move focus to previous field
+                        if (currentField.getText().length() == 0 && currentIndex > 0) {
+                            trackingInputs[currentIndex - 1].requestFocus();
+                            trackingInputs[currentIndex - 1].setSelection(
+                                    trackingInputs[currentIndex - 1].getText().length()
+                            );
+                            return true; // Consume the event
+                        }
+                    }
+                    return false;
+                }
             });
         }
 
@@ -173,8 +208,9 @@ public class DashboardActivity extends AppCompatActivity {
 
                 dialog.dismiss();
                 // Proceed to Doctors List Activity
-                // startActivity(new Intent(DashboardActivity.this, DoctorsListActivity.class));
-                Toast.makeText(this, "Tracking number confirmed: " + finalTrackingNumber, Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(DashboardActivity.this, DoctorsListActivity.class));
+                // Remove the Toast since we're navigating to DoctorsListActivity
+                // Toast.makeText(this, "Tracking number confirmed: " + finalTrackingNumber, Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "Invalid tracking number format", Toast.LENGTH_SHORT).show();
             }

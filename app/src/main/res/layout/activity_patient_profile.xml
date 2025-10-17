@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F8F9FA"
+    android:fitsSystemWindows="true"
+    tools:context=".PatientProfileActivity">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/header_gradient"
+        android:paddingTop="56dp"
+        android:paddingBottom="24dp"
+        android:paddingHorizontal="24dp"
+        android:elevation="4dp">
+
+        <TextView
+            android:id="@+id/txtName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="John Doe"
+            android:textColor="@android:color/white"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:gravity="center" />
+    </LinearLayout>
+
+    <!-- Scrollable content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="16dp"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Personal Information -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="3dp"
+                app:cardBackgroundColor="@android:color/white">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Personal Information"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:textColor="#C96A00"
+                        android:paddingBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/txtBirthdate"
+                        style="@style/InfoField"
+                        android:text="Birthdate: January 1, 2000" />
+
+                    <TextView
+                        android:id="@+id/txtSex"
+                        style="@style/InfoField"
+                        android:text="Sex: Male" />
+
+                    <TextView
+                        android:id="@+id/txtHeight"
+                        style="@style/InfoField"
+                        android:text="Height: 175 cm" />
+
+                    <TextView
+                        android:id="@+id/txtWeight"
+                        style="@style/InfoField"
+                        android:text="Weight: 70 kg" />
+
+                    <TextView
+                        android:id="@+id/txtMaritalStatus"
+                        style="@style/InfoField"
+                        android:text="Marital Status: Single" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Contact Information -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="3dp"
+                app:cardBackgroundColor="@android:color/white">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Contact Information"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:textColor="#C96A00"
+                        android:paddingBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/txtContact"
+                        style="@style/InfoField"
+                        android:text="Contact: +63 912 345 6789" />
+
+                    <TextView
+                        android:id="@+id/txtEmail"
+                        style="@style/InfoField"
+                        android:text="Email: johndoe@gmail.com" />
+
+                    <TextView
+                        android:id="@+id/txtAddress"
+                        style="@style/InfoField"
+                        android:text="Address: 123 Main Street" />
+
+                    <TextView
+                        android:id="@+id/txtBarangay"
+                        style="@style/InfoField"
+                        android:text="Barangay: 97" />
+
+                    <TextView
+                        android:id="@+id/txtCity"
+                        style="@style/InfoField"
+                        android:text="City: Pasay" />
+
+                    <TextView
+                        android:id="@+id/txtProvince"
+                        style="@style/InfoField"
+                        android:text="Province: Metro Manila" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Emergency Contact -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="3dp"
+                app:cardBackgroundColor="@android:color/white">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Emergency Contact"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:textColor="#C96A00"
+                        android:paddingBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/txtEmergencyName"
+                        style="@style/InfoField"
+                        android:text="Name: Jane Doe" />
+
+                    <TextView
+                        android:id="@+id/txtEmergencyRelation"
+                        style="@style/InfoField"
+                        android:text="Relation: Sister" />
+
+                    <TextView
+                        android:id="@+id/txtEmergencyContact"
+                        style="@style/InfoField"
+                        android:text="Contact: +63 987 654 3210" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Footer Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="16dp"
+        android:background="@android:color/white"
+        android:elevation="4dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEdit"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Edit Information"
+            android:backgroundTint="#E87C00"
+            android:textColor="@android:color/white"
+            app:cornerRadius="12dp"
+            android:layout_marginEnd="8dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDashboard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Go to Dashboard"
+            android:backgroundTint="#C96A00"
+            android:textColor="@android:color/white"
+            app:cornerRadius="12dp" />
+    </LinearLayout>
+
+</LinearLayout>
