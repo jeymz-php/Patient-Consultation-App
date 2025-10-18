@@ -14,12 +14,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class ConfirmationSchedConsultActivity extends AppCompatActivity {
 
     private TextView tvDoctorName, tvDoctorSpecialty, tvDate, tvTime;
     private MaterialButton btnConfirm, btnBack;
 
-    private String doctorName, doctorSpecialty, selectedDate, selectedTime;
+    private String doctorName, doctorSpecialty, selectedDate, selectedTime, selectedDateDisplay;
+    private String patientId, trackingNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +34,7 @@ public class ConfirmationSchedConsultActivity extends AppCompatActivity {
 
         initializeViews();
         loadScheduleData();
+        loadPatientData();
         setupListeners();
     }
 
@@ -66,13 +71,20 @@ public class ConfirmationSchedConsultActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE);
         doctorName = prefs.getString("selected_doctor_name", "Dr. Maria Santos");
         doctorSpecialty = prefs.getString("selected_doctor_specialty", "General Medicine");
-        selectedDate = prefs.getString("selected_date_display", "Today");
+        selectedDate = prefs.getString("selected_date", ""); // yyyy-MM-dd format
+        selectedDateDisplay = prefs.getString("selected_date_display", "Today");
         selectedTime = prefs.getString("selected_time", "8:00 AM");
 
         tvDoctorName.setText(doctorName);
         tvDoctorSpecialty.setText(doctorSpecialty);
-        tvDate.setText(selectedDate);
+        tvDate.setText(selectedDateDisplay);
         tvTime.setText(selectedTime);
+    }
+
+    private void loadPatientData() {
+        SharedPreferences patientPrefs = getSharedPreferences("PatientData", MODE_PRIVATE);
+        patientId = patientPrefs.getString("patient_id", "");
+        trackingNumber = patientPrefs.getString("tracking_number", "");
     }
 
     private void setupListeners() {
@@ -81,12 +93,77 @@ public class ConfirmationSchedConsultActivity extends AppCompatActivity {
         });
 
         btnConfirm.setOnClickListener(v -> {
-            Toast.makeText(this, "Consultation confirmed!", Toast.LENGTH_LONG).show();
+            // Show loading state
+            btnConfirm.setEnabled(false);
+            btnConfirm.setText("Scheduling...");
 
-            // Example: Proceed to confirmation summary or dashboard
-            Intent intent = new Intent(this, DashboardActivity.class);
-            startActivity(intent);
-            finish();
+            // Save appointment to database via API
+            saveAppointmentToDatabase();
         });
+    }
+
+    private void saveAppointmentToDatabase() {
+        ApiService apiService = new ApiService(this);
+
+        // Convert display date back to database format if needed
+        String dbDate = selectedDate; // Already in yyyy-MM-dd format from DateSelectionActivity
+
+        apiService.saveAppointment(patientId, trackingNumber, doctorName, doctorSpecialty, dbDate, selectedTime,
+                new ApiService.ApiResponseListener() {
+                    @Override
+                    public void onSuccess(JSONObject response) {
+                        runOnUiThread(() -> {
+                            try {
+                                if (response.getBoolean("success")) {
+                                    String appointmentId = response.getString("appointment_id");
+                                    Toast.makeText(ConfirmationSchedConsultActivity.this,
+                                            "Consultation scheduled successfully!", Toast.LENGTH_LONG).show();
+
+                                    // Clear the selected data from SharedPreferences
+                                    clearSelectionData();
+
+                                    // Proceed to dashboard
+                                    Intent intent = new Intent(ConfirmationSchedConsultActivity.this, DashboardActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                } else {
+                                    String errorMessage = response.getString("message");
+                                    Toast.makeText(ConfirmationSchedConsultActivity.this,
+                                            "Failed to schedule: " + errorMessage, Toast.LENGTH_LONG).show();
+                                    btnConfirm.setEnabled(true);
+                                    btnConfirm.setText("Confirm Schedule");
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                Toast.makeText(ConfirmationSchedConsultActivity.this,
+                                        "Error processing response", Toast.LENGTH_LONG).show();
+                                btnConfirm.setEnabled(true);
+                                btnConfirm.setText("Confirm Schedule");
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        runOnUiThread(() -> {
+                            Toast.makeText(ConfirmationSchedConsultActivity.this,
+                                    "Network error: " + error, Toast.LENGTH_LONG).show();
+                            btnConfirm.setEnabled(true);
+                            btnConfirm.setText("Confirm Schedule");
+                        });
+                    }
+                });
+    }
+
+    private void clearSelectionData() {
+        SharedPreferences prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.remove("selected_doctor_id");
+        editor.remove("selected_doctor_name");
+        editor.remove("selected_doctor_specialty");
+        editor.remove("selected_date");
+        editor.remove("selected_date_display");
+        editor.remove("selected_time");
+        editor.apply();
     }
 }

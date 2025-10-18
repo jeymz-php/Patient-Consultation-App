@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0F172A"
+    android:fitsSystemWindows="true"
+    tools:context=".VideoConferenceActivity">
+
+    <!-- Header with Call Information -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/header_gradient_video"
+        android:paddingTop="40dp"
+        android:paddingBottom="20dp"
+        android:paddingHorizontal="24dp"
+        android:elevation="8dp">
+
+        <!-- Back Button and Call Title -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:backgroundTint="#1E293B"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_arrow_back"
+                app:iconTint="@android:color/white"
+                app:iconSize="24dp"
+                app:iconPadding="0dp"
+                android:elevation="4dp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Video Consultation"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:letterSpacing="0.02" />
+
+            <View
+                android:layout_width="48dp"
+                android:layout_height="48dp" />
+
+        </LinearLayout>
+
+        <!-- Call Details -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_gravity="center">
+
+            <TextView
+                android:id="@+id/txtDoctorName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dr. Sarah Johnson"
+                android:textColor="@android:color/white"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:letterSpacing="0.02" />
+
+            <TextView
+                android:id="@+id/txtDoctorSpecialty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cardiology Specialist"
+                android:textColor="#94A3B8"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:layout_marginTop="4dp" />
+
+            <TextView
+                android:id="@+id/txtCallStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Connecting..."
+                android:textColor="#60A5FA"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:layout_marginTop="8dp"
+                android:drawablePadding="4dp"
+                android:drawableStart="@drawable/ic_signal" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Video Container -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#1E293B"
+        android:padding="16dp">
+
+        <!-- Remote Video View (Doctor) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardRemoteVideo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="8dp"
+            app:cardBackgroundColor="#334155">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <!-- Video Surface -->
+                <SurfaceView
+                    android:id="@+id/surfaceRemoteVideo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="visible" />
+
+                <!-- Video Off State -->
+                <LinearLayout
+                    android:id="@+id/layoutVideoOff"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="#334155"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:src="@drawable/ic_video_off"
+                        android:tint="#94A3B8"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Video is turned off"
+                        android:textColor="#94A3B8"
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                </LinearLayout>
+
+                <!-- Doctor Info Overlay -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="#80000000"
+                    android:paddingVertical="8dp"
+                    android:paddingHorizontal="16dp"
+                    android:layout_margin="16dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentStart="true"
+                    app:cornerRadius="20dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_doctor"
+                        android:tint="@android:color/white"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:id="@+id/txtRemoteParticipant"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Dr. Sarah Johnson"
+                        android:textColor="@android:color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Local Video Preview (PiP) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardLocalVideo"
+            android:layout_width="120dp"
+            android:layout_height="160dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="12dp"
+            app:cardBackgroundColor="#475569">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <SurfaceView
+                    android:id="@+id/surfaceLocalVideo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <!-- Local Video Off State -->
+                <LinearLayout
+                    android:id="@+id/layoutLocalVideoOff"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="#475569"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_video_off"
+                        android:tint="#94A3B8" />
+
+                </LinearLayout>
+
+                <!-- You Label -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="You"
+                    android:textColor="@android:color/white"
+                    android:textSize="10sp"
+                    android:background="#80000000"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="2dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_margin="8dp"
+                    app:cornerRadius="8dp" />
+
+            </RelativeLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Connection Quality Indicator -->
+        <LinearLayout
+            android:id="@+id/layoutConnectionQuality"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="#80000000"
+            android:paddingVertical="6dp"
+            android:paddingHorizontal="12dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="16dp"
+            app:cornerRadius="12dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/imgConnectionQuality"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_signal_good"
+                android:tint="#10B981"
+                android:layout_marginEnd="4dp" />
+
+            <TextView
+                android:id="@+id/txtConnectionQuality"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Good"
+                android:textColor="@android:color/white"
+                android:textSize="10sp" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <!-- Enhanced Control Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#1E293B"
+        android:paddingVertical="20dp"
+        android:paddingHorizontal="24dp"
+        android:elevation="12dp">
+
+        <!-- Call Timer -->
+        <TextView
+            android:id="@+id/txtCallTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00"
+            android:textColor="#94A3B8"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Primary Controls -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <!-- Mute Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMute"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:backgroundTint="#334155"
+                app:cornerRadius="32dp"
+                app:icon="@drawable/ic_mic_on"
+                app:iconTint="@android:color/white"
+                app:iconSize="24dp"
+                android:elevation="4dp"
+                android:layout_marginHorizontal="12dp" />
+
+            <!-- Video Toggle Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnVideo"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:backgroundTint="#334155"
+                app:cornerRadius="32dp"
+                app:icon="@drawable/ic_video_on"
+                app:iconTint="@android:color/white"
+                app:iconSize="24dp"
+                android:elevation="4dp"
+                android:layout_marginHorizontal="12dp" />
+
+            <!-- End Call Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEndCall"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:backgroundTint="#EF4444"
+                app:cornerRadius="36dp"
+                app:icon="@drawable/ic_call_end"
+                app:iconTint="@android:color/white"
+                app:iconSize="28dp"
+                android:elevation="8dp"
+                android:layout_marginHorizontal="12dp" />
+
+            <!-- Switch Camera Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSwitchCamera"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:backgroundTint="#334155"
+                app:cornerRadius="32dp"
+                app:icon="@drawable/ic_switch_camera"
+                app:iconTint="@android:color/white"
+                app:iconSize="24dp"
+                android:elevation="4dp"
+                android:layout_marginHorizontal="12dp" />
+
+            <!-- More Options Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMore"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:backgroundTint="#334155"
+                app:cornerRadius="32dp"
+                app:icon="@drawable/ic_more"
+                app:iconTint="@android:color/white"
+                app:iconSize="24dp"
+                android:elevation="4dp"
+                android:layout_marginHorizontal="12dp" />
+
+        </LinearLayout>
+
+        <!-- Secondary Controls -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="16dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Mute"
+                android:textColor="#94A3B8"
+                android:textSize="10sp"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Video"
+                android:textColor="#94A3B8"
+                android:textSize="10sp"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="End"
+                android:textColor="#EF4444"
+                android:textSize="10sp"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Camera"
+                android:textColor="#94A3B8"
+                android:textSize="10sp"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="More"
+                android:textColor="#94A3B8"
+                android:textSize="10sp"
+                android:gravity="center" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

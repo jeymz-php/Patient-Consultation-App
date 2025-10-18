@@ -9,26 +9,37 @@
     android:fitsSystemWindows="true"
     tools:context=".PatientProfileActivity">
 
-    <!-- Header -->
+    <!-- Enhanced Header with Profile Picture -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="@drawable/header_gradient"
-        android:paddingTop="56dp"
-        android:paddingBottom="24dp"
+        android:paddingTop="40dp"
+        android:paddingBottom="32dp"
         android:paddingHorizontal="24dp"
-        android:elevation="4dp">
+        android:elevation="8dp">
 
-        <TextView
-            android:id="@+id/txtName"
-            android:layout_width="match_parent"
+        <!-- Profile Avatar -->
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="John Doe"
-            android:textColor="@android:color/white"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:gravity="center" />
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_gravity="center">
+
+            <TextView
+                android:id="@+id/txtName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="John Doe"
+                android:textColor="@android:color/white"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:letterSpacing="0.02" />
+
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Scrollable content -->
@@ -44,164 +55,544 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <!-- Personal Information -->
+            <!-- Personal Information Card with Icon -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="3dp"
-                app:cardBackgroundColor="@android:color/white">
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:strokeColor="#E0E0E0"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:orientation="vertical"
-                    android:padding="16dp"
+                    android:padding="20dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <TextView
+                    <!-- Card Header with Icon -->
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Personal Information"
-                        android:textStyle="bold"
-                        android:textSize="18sp"
-                        android:textColor="#C96A00"
-                        android:paddingBottom="8dp" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
 
-                    <TextView
-                        android:id="@+id/txtBirthdate"
-                        style="@style/InfoField"
-                        android:text="Birthdate: January 1, 2000" />
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_personal_info"
+                            android:tint="#C96A00"
+                            android:layout_marginEnd="12dp" />
 
-                    <TextView
-                        android:id="@+id/txtSex"
-                        style="@style/InfoField"
-                        android:text="Sex: Male" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Personal Information"
+                            android:textStyle="bold"
+                            android:textSize="18sp"
+                            android:textColor="#C96A00" />
 
-                    <TextView
-                        android:id="@+id/txtHeight"
-                        style="@style/InfoField"
-                        android:text="Height: 175 cm" />
+                    </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/txtWeight"
-                        style="@style/InfoField"
-                        android:text="Weight: 70 kg" />
+                    <!-- Info Items with Better Layout -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/txtMaritalStatus"
-                        style="@style/InfoField"
-                        android:text="Marital Status: Single" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="12dp">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Birthdate"
+                                    android:textColor="#666666"
+                                    android:textSize="12sp"
+                                    android:textAllCaps="true"
+                                    android:letterSpacing="0.02" />
+
+                                <TextView
+                                    android:id="@+id/txtBirthdate"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="January 1, 2000"
+                                    android:textColor="#333333"
+                                    android:textSize="14sp"
+                                    android:textStyle="normal"
+                                    android:layout_marginTop="2dp" />
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Sex"
+                                    android:textColor="#666666"
+                                    android:textSize="12sp"
+                                    android:textAllCaps="true"
+                                    android:letterSpacing="0.02" />
+
+                                <TextView
+                                    android:id="@+id/txtSex"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Male"
+                                    android:textColor="#333333"
+                                    android:textSize="14sp"
+                                    android:textStyle="normal"
+                                    android:layout_marginTop="2dp" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="#F0F0F0"
+                            android:layout_marginBottom="12dp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="12dp">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Height"
+                                    android:textColor="#666666"
+                                    android:textSize="12sp"
+                                    android:textAllCaps="true"
+                                    android:letterSpacing="0.02" />
+
+                                <TextView
+                                    android:id="@+id/txtHeight"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="175 cm"
+                                    android:textColor="#333333"
+                                    android:textSize="14sp"
+                                    android:textStyle="normal"
+                                    android:layout_marginTop="2dp" />
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Weight"
+                                    android:textColor="#666666"
+                                    android:textSize="12sp"
+                                    android:textAllCaps="true"
+                                    android:letterSpacing="0.02" />
+
+                                <TextView
+                                    android:id="@+id/txtWeight"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="70 kg"
+                                    android:textColor="#333333"
+                                    android:textSize="14sp"
+                                    android:textStyle="normal"
+                                    android:layout_marginTop="2dp" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="#F0F0F0"
+                            android:layout_marginBottom="12dp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Marital Status"
+                                android:textColor="#666666"
+                                android:textSize="12sp"
+                                android:textAllCaps="true"
+                                android:letterSpacing="0.02" />
+
+                            <TextView
+                                android:id="@+id/txtMaritalStatus"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Single"
+                                android:textColor="#333333"
+                                android:textSize="14sp"
+                                android:textStyle="normal"
+                                android:layout_marginTop="2dp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Contact Information -->
+            <!-- Contact Information Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="3dp"
-                app:cardBackgroundColor="@android:color/white">
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:strokeColor="#E0E0E0"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:orientation="vertical"
-                    android:padding="16dp"
+                    android:padding="20dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <TextView
+                    <!-- Card Header with Icon -->
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Contact Information"
-                        android:textStyle="bold"
-                        android:textSize="18sp"
-                        android:textColor="#C96A00"
-                        android:paddingBottom="8dp" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
 
-                    <TextView
-                        android:id="@+id/txtContact"
-                        style="@style/InfoField"
-                        android:text="Contact: +63 912 345 6789" />
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_contact"
+                            android:tint="#C96A00"
+                            android:layout_marginEnd="12dp" />
 
-                    <TextView
-                        android:id="@+id/txtEmail"
-                        style="@style/InfoField"
-                        android:text="Email: johndoe@gmail.com" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Contact Information"
+                            android:textStyle="bold"
+                            android:textSize="18sp"
+                            android:textColor="#C96A00" />
 
-                    <TextView
-                        android:id="@+id/txtAddress"
-                        style="@style/InfoField"
-                        android:text="Address: 123 Main Street" />
+                    </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/txtBarangay"
-                        style="@style/InfoField"
-                        android:text="Barangay: 97" />
+                    <!-- Contact Info Items -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/txtCity"
-                        style="@style/InfoField"
-                        android:text="City: Pasay" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="12dp">
 
-                    <TextView
-                        android:id="@+id/txtProvince"
-                        style="@style/InfoField"
-                        android:text="Province: Metro Manila" />
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Phone"
+                                    android:textColor="#666666"
+                                    android:textSize="12sp"
+                                    android:textAllCaps="true"
+                                    android:letterSpacing="0.02" />
+
+                                <TextView
+                                    android:id="@+id/txtContact"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="+63 912 345 6789"
+                                    android:textColor="#333333"
+                                    android:textSize="14sp"
+                                    android:textStyle="normal"
+                                    android:layout_marginTop="2dp" />
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Email"
+                                    android:textColor="#666666"
+                                    android:textSize="12sp"
+                                    android:textAllCaps="true"
+                                    android:letterSpacing="0.02" />
+
+                                <TextView
+                                    android:id="@+id/txtEmail"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="johndoe@gmail.com"
+                                    android:textColor="#333333"
+                                    android:textSize="14sp"
+                                    android:textStyle="normal"
+                                    android:layout_marginTop="2dp" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="#F0F0F0"
+                            android:layout_marginBottom="12dp" />
+
+                        <!-- Address Section -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Address"
+                                android:textColor="#666666"
+                                android:textSize="12sp"
+                                android:textAllCaps="true"
+                                android:letterSpacing="0.02"
+                                android:layout_marginBottom="4dp" />
+
+                            <TextView
+                                android:id="@+id/txtAddress"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="123 Main Street"
+                                android:textColor="#333333"
+                                android:textSize="14sp"
+                                android:textStyle="normal" />
+
+                            <TextView
+                                android:id="@+id/txtBarangay"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Barangay 97"
+                                android:textColor="#333333"
+                                android:textSize="14sp"
+                                android:textStyle="normal" />
+
+                            <TextView
+                                android:id="@+id/txtCity"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Pasay, Metro Manila"
+                                android:textColor="#333333"
+                                android:textSize="14sp"
+                                android:textStyle="normal" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Emergency Contact -->
+            <!-- Emergency Contact Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="3dp"
-                app:cardBackgroundColor="@android:color/white">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:strokeColor="#E0E0E0"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:orientation="vertical"
-                    android:padding="16dp"
+                    android:padding="20dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <TextView
+                    <!-- Card Header with Icon -->
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Emergency Contact"
-                        android:textStyle="bold"
-                        android:textSize="18sp"
-                        android:textColor="#C96A00"
-                        android:paddingBottom="8dp" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
 
-                    <TextView
-                        android:id="@+id/txtEmergencyName"
-                        style="@style/InfoField"
-                        android:text="Name: Jane Doe" />
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_emergency"
+                            android:tint="#C96A00"
+                            android:layout_marginEnd="12dp" />
 
-                    <TextView
-                        android:id="@+id/txtEmergencyRelation"
-                        style="@style/InfoField"
-                        android:text="Relation: Sister" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Emergency Contact"
+                            android:textStyle="bold"
+                            android:textSize="18sp"
+                            android:textColor="#C96A00" />
 
-                    <TextView
-                        android:id="@+id/txtEmergencyContact"
-                        style="@style/InfoField"
-                        android:text="Contact: +63 987 654 3210" />
+                    </LinearLayout>
+
+                    <!-- Emergency Contact Info -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="12dp">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Name"
+                                    android:textColor="#666666"
+                                    android:textSize="12sp"
+                                    android:textAllCaps="true"
+                                    android:letterSpacing="0.02" />
+
+                                <TextView
+                                    android:id="@+id/txtEmergencyName"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Jane Doe"
+                                    android:textColor="#333333"
+                                    android:textSize="14sp"
+                                    android:textStyle="normal"
+                                    android:layout_marginTop="2dp" />
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Relation"
+                                    android:textColor="#666666"
+                                    android:textSize="12sp"
+                                    android:textAllCaps="true"
+                                    android:letterSpacing="0.02" />
+
+                                <TextView
+                                    android:id="@+id/txtEmergencyRelation"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Sister"
+                                    android:textColor="#333333"
+                                    android:textSize="14sp"
+                                    android:textStyle="normal"
+                                    android:layout_marginTop="2dp" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="#F0F0F0"
+                            android:layout_marginBottom="12dp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Emergency Phone"
+                                android:textColor="#666666"
+                                android:textSize="12sp"
+                                android:textAllCaps="true"
+                                android:letterSpacing="0.02" />
+
+                            <TextView
+                                android:id="@+id/txtEmergencyContact"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="+63 987 654 3210"
+                                android:textColor="#333333"
+                                android:textSize="14sp"
+                                android:textStyle="normal"
+                                android:layout_marginTop="2dp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </ScrollView>
 
-    <!-- Footer Buttons -->
+    <!-- Enhanced Footer Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:padding="16dp"
+        android:padding="20dp"
         android:background="@android:color/white"
-        android:elevation="4dp">
+        android:elevation="8dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnEdit"
@@ -212,17 +603,29 @@
             android:backgroundTint="#E87C00"
             android:textColor="@android:color/white"
             app:cornerRadius="12dp"
-            android:layout_marginEnd="8dp" />
+            android:layout_marginEnd="8dp"
+            android:textAllCaps="false"
+            android:textSize="14sp"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDashboard"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Go to Dashboard"
-            android:backgroundTint="#C96A00"
+            android:text="Back to Dashboard"
+            android:backgroundTint="#E87C00"
             android:textColor="@android:color/white"
-            app:cornerRadius="12dp" />
+            app:cornerRadius="12dp"
+            app:strokeColor="#C96A00"
+            app:strokeWidth="1dp"
+            android:textAllCaps="false"
+            android:textSize="14sp"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconTint="#C96A00" />
+
     </LinearLayout>
 
 </LinearLayout>

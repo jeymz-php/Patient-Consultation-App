@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -14,8 +15,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class PatientProfileActivity extends AppCompatActivity {
 
+    private static final String TAG = "PatientProfileDebug";
+
     private TextView txtName, txtBirthdate, txtSex, txtHeight, txtWeight, txtMaritalStatus;
-    private TextView txtContact, txtEmail, txtBarangay, txtAddress, txtCity, txtProvince;
+    private TextView txtContact, txtEmail, txtBarangay, txtAddress, txtCity;
     private TextView txtEmergencyName, txtEmergencyRelation, txtEmergencyContact;
     private Button btnEdit, btnDashboard;
 
@@ -24,23 +27,47 @@ public class PatientProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_patient_profile);
 
+        Log.d(TAG, "onCreate: Starting PatientProfileActivity");
+
         setSystemBars();
         initViews();
         loadPatientData();
 
         btnEdit.setOnClickListener(v -> {
+            Log.d(TAG, "Edit button clicked");
+
+            // Check if we have patient data
+            SharedPreferences prefs = getSharedPreferences("PatientData", MODE_PRIVATE);
+            boolean hasPatientData = prefs.getBoolean("has_patient_data", false);
+
+            if (!hasPatientData) {
+                Log.e(TAG, "No patient data found when trying to edit");
+                return;
+            }
+
             Intent intent = new Intent(PatientProfileActivity.this, PatientInformationActivity.class);
             intent.putExtra("isEditing", true);
+
+            // Add debug logging
+            Log.d(TAG, "Starting PatientInformationActivity in edit mode");
+
             startActivity(intent);
-            finish();
+            // Don't finish() here if you want user to come back to profile after editing
         });
 
         btnDashboard.setOnClickListener(v -> {
             Intent intent = new Intent(PatientProfileActivity.this, DashboardActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
-            finish();
+            finish(); // Remove current activity from stack
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: Refreshing patient data");
+        loadPatientData(); // Refresh data when returning from edit
     }
 
     private void setSystemBars() {
@@ -72,7 +99,6 @@ public class PatientProfileActivity extends AppCompatActivity {
         txtBarangay = findViewById(R.id.txtBarangay);
         txtAddress = findViewById(R.id.txtAddress);
         txtCity = findViewById(R.id.txtCity);
-        txtProvince = findViewById(R.id.txtProvince);
         txtEmergencyName = findViewById(R.id.txtEmergencyName);
         txtEmergencyRelation = findViewById(R.id.txtEmergencyRelation);
         txtEmergencyContact = findViewById(R.id.txtEmergencyContact);
@@ -86,6 +112,10 @@ public class PatientProfileActivity extends AppCompatActivity {
 
         String firstName = prefs.getString("first_name", "N/A");
         String lastName = prefs.getString("last_name", "N/A");
+        String patientId = prefs.getString("patient_id", "N/A");
+        String trackingNumber = prefs.getString("tracking_number", "N/A");
+
+        Log.d(TAG, "Loading patient data - ID: " + patientId + ", Tracking: " + trackingNumber);
 
         txtName.setText(firstName + " " + lastName);
         txtBirthdate.setText(prefs.getString("date_of_birth", "N/A"));
@@ -98,7 +128,6 @@ public class PatientProfileActivity extends AppCompatActivity {
         txtBarangay.setText(prefs.getString("barangay", "N/A"));
         txtAddress.setText(prefs.getString("address", "N/A"));
         txtCity.setText(prefs.getString("city", "N/A"));
-        txtProvince.setText(prefs.getString("state_province", "N/A"));
         txtEmergencyName.setText(
                 prefs.getString("emergency_first_name", "N/A") + " " +
                         prefs.getString("emergency_last_name", "")

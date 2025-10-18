@@ -6,21 +6,31 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.volley.BuildConfig;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.textfield.TextInputEditText;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DashboardActivity extends AppCompatActivity {
+
+    private MaterialButton btnConfirmTracking; // Make it a class variable to access in multiple methods
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,8 +91,9 @@ public class DashboardActivity extends AppCompatActivity {
                                 showDataPrivacyDialog();
                             }
                         } else if (which == 2) {
-                            // Consultation Logs
-                            // startActivity(new Intent(DashboardActivity.this, ConsultationLogsActivity.class));
+                            // Consultation Logs - FIXED: Now it's enabled
+                            Intent intent = new Intent(DashboardActivity.this, ConsultationLogsActivity.class);
+                            startActivity(intent);
                         }
                     })
                     .show();
@@ -102,7 +113,8 @@ public class DashboardActivity extends AppCompatActivity {
         EditText etTrack7 = dialogView.findViewById(R.id.etTrack7);
         EditText etTrack8 = dialogView.findViewById(R.id.etTrack8);
 
-        MaterialButton btnConfirmTracking = dialogView.findViewById(R.id.btnConfirmTracking);
+        btnConfirmTracking = dialogView.findViewById(R.id.btnConfirmTracking);
+        TextView txtNoTrackingNumber = dialogView.findViewById(R.id.txtNoTrackingNumber);
 
         // Initially disable the confirm button
         btnConfirmTracking.setEnabled(false);
@@ -190,7 +202,7 @@ public class DashboardActivity extends AppCompatActivity {
             });
         }
 
-        // Confirm button click listener
+        // Confirm button click listener - UPDATED WITH DATABASE VALIDATION
         btnConfirmTracking.setOnClickListener(v -> {
             // Build the complete tracking number
             StringBuilder trackingNumber = new StringBuilder();
@@ -202,21 +214,188 @@ public class DashboardActivity extends AppCompatActivity {
 
             // Validate the format (first two should be letters, rest numbers)
             if (isValidTrackingNumber(finalTrackingNumber)) {
-                // Save tracking number and proceed to doctors list
-                android.content.SharedPreferences prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE);
-                prefs.edit().putString("tracking_number", finalTrackingNumber).apply();
-
-                dialog.dismiss();
-                // Proceed to Doctors List Activity
-                startActivity(new Intent(DashboardActivity.this, DoctorsListActivity.class));
-                // Remove the Toast since we're navigating to DoctorsListActivity
-                // Toast.makeText(this, "Tracking number confirmed: " + finalTrackingNumber, Toast.LENGTH_SHORT).show();
+                // Check if tracking number exists in database
+                validateTrackingNumberWithDatabase(finalTrackingNumber, dialog);
             } else {
-                Toast.makeText(this, "Invalid tracking number format", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Invalid tracking number format. Format: AB123456", Toast.LENGTH_LONG).show();
             }
         });
 
+        // NEW: Handle "Don't have tracking number?" click
+        txtNoTrackingNumber.setOnClickListener(v -> {
+            dialog.dismiss();
+            showDataPrivacyDialog(); // Show data privacy modal first
+        });
+
         dialog.show();
+    }
+
+    // NEW METHOD: Validate tracking number with API
+    private void validateTrackingNumberWithDatabase(String trackingNumber, androidx.appcompat.app.AlertDialog dialog) {
+        // Show loading state
+        btnConfirmTracking.setEnabled(false);
+        btnConfirmTracking.setText("Checking...");
+
+        ApiService apiService = new ApiService(this);
+        apiService.validateTrackingNumber(trackingNumber, new ApiService.ApiResponseListener() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                runOnUiThread(() -> {
+                    try {
+                        if (response.has("success") && response.getBoolean("success")) {
+                            // Tracking number found
+                            JSONObject patientDataJson = response.getJSONObject("patient_data");
+                            PatientData patientData = parsePatientDataFromJson(patientDataJson);
+
+                            savePatientDataToSharedPreferences(patientData);
+
+                            // Save tracking number
+                            android.content.SharedPreferences prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE);
+                            prefs.edit().putString("tracking_number", trackingNumber).apply();
+
+                            dialog.dismiss();
+
+                            // Show success message
+                            Toast.makeText(DashboardActivity.this, "Tracking number verified! Welcome " + patientData.getFirstName(), Toast.LENGTH_SHORT).show();
+
+                            // Proceed to Doctors List Activity
+                            startActivity(new Intent(DashboardActivity.this, DoctorsListActivity.class));
+                        } else {
+                            // Tracking number not found
+                            String message = response.has("message") ? response.getString("message") : "Tracking number not found";
+                            Toast.makeText(DashboardActivity.this, message, Toast.LENGTH_LONG).show();
+
+                            // Reset button state
+                            btnConfirmTracking.setEnabled(true);
+                            btnConfirmTracking.setText("Confirm Tracking Number");
+                        }
+                    } catch (JSONException e) {
+                        Log.e("DashboardActivity", "JSON parsing error", e);
+                        Toast.makeText(DashboardActivity.this, "Error parsing response", Toast.LENGTH_LONG).show();
+                        btnConfirmTracking.setEnabled(true);
+                        btnConfirmTracking.setText("Confirm Tracking Number");
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    Log.e("DashboardActivity", "API Error: " + error);
+
+                    // More specific error messages
+                    if (error.contains("JSONException") || error.contains("ParseError")) {
+                        Toast.makeText(DashboardActivity.this, "Server response error. Please try again.", Toast.LENGTH_LONG).show();
+                    } else if (error.contains("Timeout") || error.contains("NoConnection")) {
+                        Toast.makeText(DashboardActivity.this, "Network connection failed. Please check your internet.", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(DashboardActivity.this, "Failed to verify tracking number: " + error, Toast.LENGTH_LONG).show();
+                    }
+
+                    // Reset button state
+                    btnConfirmTracking.setEnabled(true);
+                    btnConfirmTracking.setText("Confirm Tracking Number");
+                });
+            }
+        });
+    }
+
+    // Helper method to parse JSON to PatientData
+    private PatientData parsePatientDataFromJson(JSONObject json) throws JSONException {
+        PatientData patientData = new PatientData();
+
+        patientData.setFirstName(json.getString("first_name"));
+        patientData.setLastName(json.getString("last_name"));
+        patientData.setDateOfBirth(json.getString("date_of_birth"));
+        patientData.setGender(json.getString("gender"));
+        patientData.setContactNumber(json.getString("contact_number"));
+        patientData.setEmail(json.getString("email"));
+        patientData.setAddress(json.getString("address"));
+        patientData.setCivilStatus(json.getString("civil_status"));
+        patientData.setBarangay(json.getString("barangay"));
+        patientData.setEmergencyFirstName(json.getString("emergency_first_name"));
+        patientData.setEmergencyLastName(json.getString("emergency_last_name"));
+        patientData.setEmergencyRelationship(json.getString("emergency_relationship"));
+        patientData.setEmergencyContactNumber(json.getString("emergency_contact_number"));
+        patientData.setTrackingNumber(json.getString("tracking_number"));
+        patientData.setPatientId(json.getInt("patient_id"));
+        patientData.setResidentId(json.getInt("resident_id"));
+
+        return patientData;
+    }
+
+    // NEW METHOD: Save patient data to SharedPreferences
+    private void savePatientDataToSharedPreferences(PatientData patientData) {
+        android.content.SharedPreferences prefs = getSharedPreferences("PatientData", MODE_PRIVATE);
+        android.content.SharedPreferences.Editor editor = prefs.edit();
+
+        // Save basic patient information
+        editor.putString("first_name", patientData.getFirstName());
+        editor.putString("last_name", patientData.getLastName());
+        editor.putString("date_of_birth", patientData.getDateOfBirth());
+        editor.putString("sex", patientData.getGender());
+        editor.putString("contact_number", patientData.getContactNumber());
+        editor.putString("email", patientData.getEmail());
+        editor.putString("address", patientData.getAddress());
+        editor.putString("marital_status", patientData.getCivilStatus());
+        editor.putString("barangay", patientData.getBarangay());
+
+        // Save emergency contact information
+        editor.putString("emergency_first_name", patientData.getEmergencyFirstName());
+        editor.putString("emergency_last_name", patientData.getEmergencyLastName());
+        editor.putString("emergency_relationship", patientData.getEmergencyRelationship());
+        editor.putString("emergency_contact_number", patientData.getEmergencyContactNumber());
+
+        // Save IDs and tracking number
+        editor.putString("patient_id", String.valueOf(patientData.getPatientId()));
+        editor.putString("resident_id", String.valueOf(patientData.getResidentId()));
+        editor.putString("tracking_number", patientData.getTrackingNumber());
+
+        // Mark that patient data exists
+        editor.putBoolean("has_patient_data", true);
+
+        editor.apply();
+    }
+
+    // Update the debug method to use API
+    private void showAvailableTrackingNumbersForDebug() {
+        ApiService apiService = new ApiService(this);
+        apiService.getAllTrackingNumbers(new ApiService.ApiResponseListener() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                runOnUiThread(() -> {
+                    try {
+                        if (response.has("success") && response.getBoolean("success")) {
+                            org.json.JSONArray trackingNumbers = response.getJSONArray("tracking_numbers");
+                            List<String> numbers = new ArrayList<>();
+                            for (int i = 0; i < trackingNumbers.length(); i++) {
+                                numbers.add(trackingNumbers.getString(i));
+                            }
+                            String availableNumbers = "Available: " + String.join(", ", numbers);
+                            Toast.makeText(DashboardActivity.this, availableNumbers, Toast.LENGTH_LONG).show();
+                        }
+                    } catch (JSONException e) {
+                        Log.e("DashboardActivity", "Error parsing tracking numbers", e);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    Log.e("DashboardActivity", "API Error: " + error);
+
+                    // More specific error messages for debug method too
+                    if (error.contains("JSONException") || error.contains("ParseError")) {
+                        Toast.makeText(DashboardActivity.this, "Server response error. Please try again.", Toast.LENGTH_LONG).show();
+                    } else if (error.contains("Timeout") || error.contains("NoConnection")) {
+                        Toast.makeText(DashboardActivity.this, "Network connection failed. Please check your internet.", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(DashboardActivity.this, "Error: " + error, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
     }
 
     private void checkAllFieldsFilled(EditText[] inputs, MaterialButton confirmButton) {
