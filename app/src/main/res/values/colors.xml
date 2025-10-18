@@ -6,4 +6,8 @@
 
     <color name="muted_state">#EF4444</color>
     <color name="normal_state">#334155</color>
+    <color name="muted_state_orange">#FF5722</color>
+    <color name="orange_primary">#FFA726</color>
+    <color name="orange_dark">#F57C00</color>
+    <color name="orange_light">#FFE0B2</color>
 </resources>

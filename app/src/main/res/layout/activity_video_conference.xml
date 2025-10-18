@@ -81,7 +81,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Cardiology Specialist"
-                android:textColor="#94A3B8"
+                android:textColor="#E8E8E8"
                 android:textSize="14sp"
                 android:gravity="center"
                 android:layout_marginTop="4dp" />
@@ -91,7 +91,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Connecting..."
-                android:textColor="#60A5FA"
+                android:textColor="#FFA726"
                 android:textSize="12sp"
                 android:gravity="center"
                 android:layout_marginTop="8dp"
@@ -269,7 +269,7 @@
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_signal_good"
-                android:tint="#10B981"
+                android:tint="#FFA726"
                 android:layout_marginEnd="4dp" />
 
             <TextView
@@ -290,7 +290,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="#1E293B"
-        android:paddingVertical="20dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="32dp"
         android:paddingHorizontal="24dp"
         android:elevation="12dp">
 
@@ -300,11 +301,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="00:00"
-            android:textColor="#94A3B8"
-            android:textSize="14sp"
+            android:textColor="#FFA726"
+            android:textSize="16sp"
             android:textStyle="bold"
             android:layout_gravity="center"
-            android:layout_marginBottom="20dp" />
+            android:layout_marginBottom="24dp" />
 
         <!-- Primary Controls -->
         <LinearLayout
@@ -316,124 +317,70 @@
             <!-- Mute Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnMute"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="68dp"
+                android:layout_height="68dp"
                 android:backgroundTint="#334155"
-                app:cornerRadius="32dp"
+                app:cornerRadius="34dp"
                 app:icon="@drawable/ic_mic_on"
                 app:iconTint="@android:color/white"
-                app:iconSize="24dp"
-                android:elevation="4dp"
-                android:layout_marginHorizontal="12dp" />
+                app:iconSize="28dp"
+                android:elevation="6dp"
+                android:layout_marginHorizontal="8dp" />
 
             <!-- Video Toggle Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnVideo"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="68dp"
+                android:layout_height="68dp"
                 android:backgroundTint="#334155"
-                app:cornerRadius="32dp"
+                app:cornerRadius="34dp"
                 app:icon="@drawable/ic_video_on"
                 app:iconTint="@android:color/white"
-                app:iconSize="24dp"
-                android:elevation="4dp"
-                android:layout_marginHorizontal="12dp" />
+                app:iconSize="28dp"
+                android:elevation="6dp"
+                android:layout_marginHorizontal="8dp" />
 
             <!-- End Call Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEndCall"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:backgroundTint="#EF4444"
-                app:cornerRadius="36dp"
+                android:layout_width="76dp"
+                android:layout_height="76dp"
+                android:backgroundTint="#FF5722"
+                app:cornerRadius="38dp"
                 app:icon="@drawable/ic_call_end"
                 app:iconTint="@android:color/white"
-                app:iconSize="28dp"
-                android:elevation="8dp"
+                app:iconSize="32dp"
+                android:elevation="10dp"
                 android:layout_marginHorizontal="12dp" />
 
             <!-- Switch Camera Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSwitchCamera"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="68dp"
+                android:layout_height="68dp"
                 android:backgroundTint="#334155"
-                app:cornerRadius="32dp"
+                app:cornerRadius="34dp"
                 app:icon="@drawable/ic_switch_camera"
                 app:iconTint="@android:color/white"
-                app:iconSize="24dp"
-                android:elevation="4dp"
-                android:layout_marginHorizontal="12dp" />
+                app:iconSize="28dp"
+                android:elevation="6dp"
+                android:layout_marginHorizontal="8dp" />
 
             <!-- More Options Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnMore"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="68dp"
+                android:layout_height="68dp"
                 android:backgroundTint="#334155"
-                app:cornerRadius="32dp"
+                app:cornerRadius="34dp"
                 app:icon="@drawable/ic_more"
                 app:iconTint="@android:color/white"
-                app:iconSize="24dp"
-                android:elevation="4dp"
-                android:layout_marginHorizontal="12dp" />
+                app:iconSize="28dp"
+                android:elevation="6dp"
+                android:layout_marginHorizontal="8dp" />
 
         </LinearLayout>
 
-        <!-- Secondary Controls -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginTop="16dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Mute"
-                android:textColor="#94A3B8"
-                android:textSize="10sp"
-                android:gravity="center" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Video"
-                android:textColor="#94A3B8"
-                android:textSize="10sp"
-                android:gravity="center" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="End"
-                android:textColor="#EF4444"
-                android:textSize="10sp"
-                android:gravity="center" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Camera"
-                android:textColor="#94A3B8"
-                android:textSize="10sp"
-                android:gravity="center" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="More"
-                android:textColor="#94A3B8"
-                android:textSize="10sp"
-                android:gravity="center" />
-
-        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

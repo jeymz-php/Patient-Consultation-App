@@ -7,8 +7,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -19,6 +21,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -134,8 +138,8 @@ public class ConsultationLogsActivity extends AppCompatActivity {
         consultationAdapter = new ConsultationAdapter(consultationList, new ConsultationAdapter.OnConsultationClickListener() {
             @Override
             public void onConsultationClick(Consultation consultation) {
-                // Handle consultation item click
-                onConsultationSelected(consultation);
+                // Handle consultation item click - show modal dialog
+                showConsultationModal(consultation);
             }
         });
         rvConsultations.setAdapter(consultationAdapter);
@@ -262,25 +266,97 @@ public class ConsultationLogsActivity extends AppCompatActivity {
         }
     }
 
-    private void onConsultationSelected(Consultation consultation) {
-        // Handle consultation item click
-        // You can show details in a dialog or navigate to detail activity
-        showConsultationDetails(consultation);
+    private void showConsultationModal(Consultation consultation) {
+        // Inflate the custom dialog layout
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_consultation_details, null);
+
+        // Initialize views from the dialog
+        TextView txtDoctorName = dialogView.findViewById(R.id.txtDialogDoctorName);
+        TextView txtDoctorSpecialty = dialogView.findViewById(R.id.txtDialogDoctorSpecialty);
+        TextView txtAppointmentDate = dialogView.findViewById(R.id.txtDialogAppointmentDate);
+        TextView txtAppointmentTime = dialogView.findViewById(R.id.txtDialogAppointmentTime);
+        TextView txtStatus = dialogView.findViewById(R.id.txtDialogStatus);
+        TextView txtRemarks = dialogView.findViewById(R.id.txtDialogRemarks);
+        Button btnJoin = dialogView.findViewById(R.id.btnJoinConsultation);
+        Button btnBack = dialogView.findViewById(R.id.btnBackConsultation);
+
+        // Set consultation data
+        txtDoctorName.setText(consultation.getDoctorName());
+        txtDoctorSpecialty.setText(consultation.getDoctorSpecialty());
+        txtAppointmentDate.setText(consultation.getAppointmentDate());
+        txtAppointmentTime.setText(consultation.getAppointmentTime());
+        txtStatus.setText(consultation.getStatus());
+        txtRemarks.setText(consultation.getRemarks());
+
+        // Style the status based on its value
+        styleStatusTextView(txtStatus, consultation.getStatus());
+
+        // Create the dialog
+        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(this)
+                .setView(dialogView)
+                .setCancelable(true);
+
+        androidx.appcompat.app.AlertDialog dialog = dialogBuilder.create();
+
+        // Set button click listeners
+        btnJoin.setOnClickListener(v -> {
+            joinVideoConference(consultation);
+            dialog.dismiss();
+        });
+
+        btnBack.setOnClickListener(v -> {
+            dialog.dismiss();
+        });
+
+        // Show the dialog
+        dialog.show();
+
+        // Set proper modal size
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.white);
+            int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.90);
+            int height = android.view.WindowManager.LayoutParams.WRAP_CONTENT;
+            dialog.getWindow().setLayout(width, height);
+        }
     }
 
-    private void showConsultationDetails(Consultation consultation) {
-        // Create a dialog to show consultation details
-        new android.app.AlertDialog.Builder(this)
-                .setTitle("Consultation Details")
-                .setMessage(
-                        "Doctor: " + consultation.getDoctorName() + "\n" +
-                                "Specialty: " + consultation.getDoctorSpecialty() + "\n" +
-                                "Date: " + consultation.getAppointmentDate() + "\n" +
-                                "Time: " + consultation.getAppointmentTime() + "\n" +
-                                "Status: " + consultation.getStatus() + "\n" +
-                                "Remarks: " + consultation.getRemarks()
-                )
-                .setPositiveButton("OK", null)
-                .show();
+    private void styleStatusTextView(TextView statusTextView, String status) {
+        switch (status.toLowerCase()) {
+            case "completed":
+                statusTextView.setTextColor(Color.parseColor("#10B981")); // Green
+                statusTextView.setBackgroundResource(R.drawable.bg_status_completed);
+                break;
+            case "scheduled":
+                statusTextView.setTextColor(Color.parseColor("#F59E0B")); // Amber
+                statusTextView.setBackgroundResource(R.drawable.bg_status_scheduled);
+                break;
+            case "cancelled":
+                statusTextView.setTextColor(Color.parseColor("#EF4444")); // Red
+                statusTextView.setBackgroundResource(R.drawable.bg_status_cancelled);
+                break;
+            case "ongoing":
+                statusTextView.setTextColor(Color.parseColor("#3B82F6")); // Blue
+                statusTextView.setBackgroundResource(R.drawable.bg_status_ongoing);
+                break;
+            default:
+                statusTextView.setTextColor(Color.parseColor("#6B7280")); // Gray
+                statusTextView.setBackgroundResource(R.drawable.bg_status_default);
+                break;
+        }
+    }
+
+    private void joinVideoConference(Consultation consultation) {
+        // Check if the consultation is joinable (scheduled or ongoing)
+        String status = consultation.getStatus().toLowerCase();
+        if (status.equals("scheduled") || status.equals("ongoing")) {
+            // Proceed to VideoConferenceActivity
+            Intent intent = new Intent(ConsultationLogsActivity.this, VideoConferenceActivity.class);
+            intent.putExtra("doctor_name", consultation.getDoctorName());
+            intent.putExtra("doctor_specialty", consultation.getDoctorSpecialty());
+            intent.putExtra("appointment_id", consultation.getAppointmentId());
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "This consultation cannot be joined. Status: " + consultation.getStatus(), Toast.LENGTH_LONG).show();
+        }
     }
 }

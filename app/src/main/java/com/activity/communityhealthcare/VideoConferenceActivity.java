@@ -12,6 +12,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +32,7 @@ public class VideoConferenceActivity extends AppCompatActivity {
     private TextView txtDoctorName, txtDoctorSpecialty, txtCallStatus, txtCallTimer, txtRemoteParticipant;
     private View layoutVideoOff, layoutLocalVideoOff, layoutConnectionQuality;
     private TextView txtConnectionQuality;
+    private ImageView imgConnectionQuality;
 
     // Conference state
     private boolean isMuted = false;
@@ -62,7 +64,7 @@ public class VideoConferenceActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
             window.setStatusBarColor(Color.parseColor("#0F172A"));
-            window.setNavigationBarColor(Color.parseColor("#0F172A"));
+            window.setNavigationBarColor(Color.parseColor("#1E293B"));
 
             // Make content appear behind the status bar
             window.getDecorView().setSystemUiVisibility(
@@ -77,7 +79,10 @@ public class VideoConferenceActivity extends AppCompatActivity {
 
     private void setupWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content),
-                (v, insets) -> WindowInsetsCompat.CONSUMED);
+                (v, insets) -> {
+                    // Simple insets handling without the problematic controlsLayout
+                    return WindowInsetsCompat.CONSUMED;
+                });
     }
 
     private void initializeViews() {
@@ -99,6 +104,7 @@ public class VideoConferenceActivity extends AppCompatActivity {
         // Connection quality
         layoutConnectionQuality = findViewById(R.id.layoutConnectionQuality);
         txtConnectionQuality = findViewById(R.id.txtConnectionQuality);
+        imgConnectionQuality = findViewById(R.id.imgConnectionQuality);
 
         // Control views
         txtCallTimer = findViewById(R.id.txtCallTimer);
@@ -131,7 +137,7 @@ public class VideoConferenceActivity extends AppCompatActivity {
         new Handler().postDelayed(() -> {
             runOnUiThread(() -> {
                 txtCallStatus.setText("Connected");
-                txtCallStatus.setTextColor(Color.parseColor("#10B981"));
+                txtCallStatus.setTextColor(Color.parseColor("#FFA726"));
                 isCallActive = true;
                 startCallTimer();
                 showConnectionQuality();
@@ -182,8 +188,8 @@ public class VideoConferenceActivity extends AppCompatActivity {
         isMuted = !isMuted;
 
         if (isMuted) {
-            btnMute.setIconResource(R.drawable.ic_mic_off);  // Now points to PNG
-            btnMute.setBackgroundTintList(getColorStateList(R.color.muted_state));
+            btnMute.setIconResource(R.drawable.ic_mic_off);
+            btnMute.setBackgroundTintList(getColorStateList(R.color.muted_state_orange));
             Toast.makeText(this, "Microphone muted", Toast.LENGTH_SHORT).show();
         } else {
             btnMute.setIconResource(R.drawable.ic_mic_on);
@@ -206,7 +212,7 @@ public class VideoConferenceActivity extends AppCompatActivity {
             Toast.makeText(this, "Video on", Toast.LENGTH_SHORT).show();
         } else {
             btnVideo.setIconResource(R.drawable.ic_video_off);
-            btnVideo.setBackgroundTintList(getColorStateList(R.color.muted_state));
+            btnVideo.setBackgroundTintList(getColorStateList(R.color.muted_state_orange));
             surfaceLocalVideo.setVisibility(View.GONE);
             layoutLocalVideoOff.setVisibility(View.VISIBLE);
             Toast.makeText(this, "Video off", Toast.LENGTH_SHORT).show();
@@ -267,7 +273,9 @@ public class VideoConferenceActivity extends AppCompatActivity {
         new Handler().postDelayed(() -> {
             runOnUiThread(() -> {
                 txtConnectionQuality.setText("Excellent");
-                // Change icon color to green for excellent connection
+                if (imgConnectionQuality != null) {
+                    imgConnectionQuality.setColorFilter(Color.parseColor("#FFA726"));
+                }
             });
         }, 1000);
     }
