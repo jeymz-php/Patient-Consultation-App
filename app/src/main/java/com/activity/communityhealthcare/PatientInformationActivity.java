@@ -583,6 +583,11 @@ public class PatientInformationActivity extends AppCompatActivity {
     private boolean validateForm() {
         Log.d(TAG, "Validating form...");
 
+        // Add debug logs for each field
+        Log.d(TAG, "First Name: " + etFirstName.getText().toString().trim());
+        Log.d(TAG, "Last Name: " + etLastName.getText().toString().trim());
+        Log.d(TAG, "Email: " + autoCompleteEmail.getText().toString().trim());
+
         // In edit mode, only validate editable fields
         if (isEditing) {
             // Only validate editable fields in edit mode
