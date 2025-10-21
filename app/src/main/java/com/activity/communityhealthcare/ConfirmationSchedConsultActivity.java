@@ -19,10 +19,10 @@ import org.json.JSONObject;
 
 public class ConfirmationSchedConsultActivity extends AppCompatActivity {
 
-    private TextView tvDoctorName, tvDoctorSpecialty, tvDate, tvTime;
+    private TextView tvDate, tvTime;
     private MaterialButton btnConfirm, btnBack;
 
-    private String doctorName, doctorSpecialty, selectedDate, selectedTime, selectedDateDisplay;
+    private String selectedDate, selectedTime, selectedDateDisplay;
     private String patientId, trackingNumber;
 
     @Override
@@ -59,8 +59,6 @@ public class ConfirmationSchedConsultActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
-        tvDoctorName = findViewById(R.id.tvDoctorName);
-        tvDoctorSpecialty = findViewById(R.id.tvDoctorSpecialty);
         tvDate = findViewById(R.id.tvSelectedDate);
         tvTime = findViewById(R.id.tvSelectedTime);
         btnConfirm = findViewById(R.id.btnConfirmSchedule);
@@ -69,14 +67,10 @@ public class ConfirmationSchedConsultActivity extends AppCompatActivity {
 
     private void loadScheduleData() {
         SharedPreferences prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE);
-        doctorName = prefs.getString("selected_doctor_name", "Dr. Maria Santos");
-        doctorSpecialty = prefs.getString("selected_doctor_specialty", "General Medicine");
         selectedDate = prefs.getString("selected_date", ""); // yyyy-MM-dd format
         selectedDateDisplay = prefs.getString("selected_date_display", "Today");
         selectedTime = prefs.getString("selected_time", "8:00 AM");
 
-        tvDoctorName.setText(doctorName);
-        tvDoctorSpecialty.setText(doctorSpecialty);
         tvDate.setText(selectedDateDisplay);
         tvTime.setText(selectedTime);
     }
@@ -107,6 +101,10 @@ public class ConfirmationSchedConsultActivity extends AppCompatActivity {
 
         // Convert display date back to database format if needed
         String dbDate = selectedDate; // Already in yyyy-MM-dd format from DateSelectionActivity
+
+        // Use default doctor information since we removed doctor selection
+        String doctorName = "Community Healthcare Doctor";
+        String doctorSpecialty = "General Consultation";
 
         apiService.saveAppointment(patientId, trackingNumber, doctorName, doctorSpecialty, dbDate, selectedTime,
                 new ApiService.ApiResponseListener() {
@@ -158,9 +156,6 @@ public class ConfirmationSchedConsultActivity extends AppCompatActivity {
     private void clearSelectionData() {
         SharedPreferences prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
-        editor.remove("selected_doctor_id");
-        editor.remove("selected_doctor_name");
-        editor.remove("selected_doctor_specialty");
         editor.remove("selected_date");
         editor.remove("selected_date_display");
         editor.remove("selected_time");

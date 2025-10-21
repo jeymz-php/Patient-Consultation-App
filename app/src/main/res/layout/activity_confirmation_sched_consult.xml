@@ -27,25 +27,6 @@
             android:textStyle="bold"
             android:gravity="center" />
 
-        <TextView
-            android:id="@+id/tvDoctorName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Dr. Maria Santos"
-            android:textColor="#E8E8E8"
-            android:textSize="14sp"
-            android:gravity="center"
-            android:layout_marginTop="4dp" />
-
-        <TextView
-            android:id="@+id/tvDoctorSpecialty"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="General Medicine"
-            android:textColor="#E8E8E8"
-            android:textSize="12sp"
-            android:gravity="center" />
-
     </LinearLayout>
 
     <!-- Details Section -->

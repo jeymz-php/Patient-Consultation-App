@@ -25,12 +25,11 @@ import java.util.Locale;
 public class DateSelectionActivity extends AppCompatActivity {
 
     private RecyclerView rvCalendar;
-    private TextView tvSelectedDoctor, tvCurrentMonth;
+    private TextView tvCurrentMonth;
     private ImageButton btnPrevMonth, btnNextMonth;
     private CalendarAdapter calendarAdapter;
     private List<CalendarDate> calendarDateList;
     private Calendar currentCalendar;
-    private String selectedDoctorId, selectedDoctorName, selectedDoctorSpecialty;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +42,6 @@ public class DateSelectionActivity extends AppCompatActivity {
 
         // Handle window insets
         setupWindowInsets();
-
-        // Get selected doctor data
-        getSelectedDoctorData();
 
         initializeViews();
         setupCalendar();
@@ -95,29 +91,11 @@ public class DateSelectionActivity extends AppCompatActivity {
         });
     }
 
-    private void getSelectedDoctorData() {
-        SharedPreferences prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE);
-        selectedDoctorId = prefs.getString("selected_doctor_id", "");
-        selectedDoctorName = prefs.getString("selected_doctor_name", "");
-        selectedDoctorSpecialty = prefs.getString("selected_doctor_specialty", "");
-
-        // If no data from intent, use sample data
-        if (selectedDoctorName.isEmpty()) {
-            selectedDoctorName = "Dr. Maria Santos";
-            selectedDoctorSpecialty = "General Medicine";
-        }
-    }
-
     private void initializeViews() {
         rvCalendar = findViewById(R.id.rvCalendar);
-        tvSelectedDoctor = findViewById(R.id.tvSelectedDoctor);
         tvCurrentMonth = findViewById(R.id.tvCurrentMonth);
         btnPrevMonth = findViewById(R.id.btnPrevMonth);
         btnNextMonth = findViewById(R.id.btnNextMonth);
-
-        // Set selected doctor info
-        String doctorInfo = selectedDoctorName + " - " + selectedDoctorSpecialty;
-        tvSelectedDoctor.setText(doctorInfo);
 
         // Initialize calendar to current month
         currentCalendar = Calendar.getInstance();

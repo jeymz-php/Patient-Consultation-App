@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -24,10 +25,10 @@ import java.util.Locale;
 public class TimeSelectionActivity extends AppCompatActivity {
 
     private RecyclerView rvTimeSlots;
-    private TextView tvSelectedDoctor, tvSelectedDate;
+    private TextView tvSelectedDate;
     private TimeSlotAdapter timeSlotAdapter;
     private List<TimeSlot> timeSlotList;
-    private String selectedDoctorId, selectedDoctorName, selectedDoctorSpecialty;
+    private String selectedDate; // Store the selected date in yyyy-MM-dd format
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,11 +42,8 @@ public class TimeSelectionActivity extends AppCompatActivity {
         // Handle window insets
         setupWindowInsets();
 
-        // Get selected doctor data
-        getSelectedDoctorData();
-
         initializeViews();
-        setupTimeSlots();
+        checkAvailabilityAndSetupTimeSlots();
     }
 
     private void setSystemBars() {
@@ -91,42 +89,94 @@ public class TimeSelectionActivity extends AppCompatActivity {
         });
     }
 
-    private void getSelectedDoctorData() {
-        SharedPreferences prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE);
-        selectedDoctorId = prefs.getString("selected_doctor_id", "");
-        selectedDoctorName = prefs.getString("selected_doctor_name", "");
-        selectedDoctorSpecialty = prefs.getString("selected_doctor_specialty", "");
-
-        // If no data from intent, use sample data
-        if (selectedDoctorName.isEmpty()) {
-            selectedDoctorName = "Dr. Maria Santos";
-            selectedDoctorSpecialty = "General Medicine";
-        }
-    }
-
     private void initializeViews() {
         rvTimeSlots = findViewById(R.id.rvTimeSlots);
-        tvSelectedDoctor = findViewById(R.id.tvSelectedDoctor);
         tvSelectedDate = findViewById(R.id.tvSelectedDate);
-
-        // Set selected doctor info
-        String doctorInfo = selectedDoctorName + " - " + selectedDoctorSpecialty;
-        tvSelectedDoctor.setText(doctorInfo);
 
         // Set selected date from shared preferences
         SharedPreferences prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE);
-        String selectedDate = prefs.getString("selected_date_display", "Today");
-        tvSelectedDate.setText(selectedDate);
+        String selectedDateDisplay = prefs.getString("selected_date_display", "Today");
+        selectedDate = prefs.getString("selected_date", ""); // yyyy-MM-dd format
+
+        tvSelectedDate.setText(selectedDateDisplay);
     }
 
-    private void setupTimeSlots() {
+    private void checkAvailabilityAndSetupTimeSlots() {
+        // Show loading state
+        Toast.makeText(this, "Checking available time slots...", Toast.LENGTH_SHORT).show();
+
+        // Generate all possible time slots first
         timeSlotList = generateTimeSlots();
 
-        // DEBUG: Check if time slots are generated
-        System.out.println("Generated " + timeSlotList.size() + " time slots");
+        // Check availability for each time slot
+        checkAllTimeSlotsAvailability();
+    }
+
+    private void checkAllTimeSlotsAvailability() {
+        final int totalSlots = timeSlotList.size();
+        final int[] checkedSlots = {0};
+
+        for (TimeSlot slot : timeSlotList) {
+            checkTimeSlotAvailability(slot, new ApiService.ApiResponseListener() {
+                @Override
+                public void onSuccess(org.json.JSONObject response) {
+                    runOnUiThread(() -> {
+                        try {
+                            if (response.getBoolean("success") && response.getBoolean("available")) {
+                                // Time slot is available
+                                slot.setAvailable(true);
+                            } else {
+                                // Time slot is booked
+                                slot.setAvailable(false);
+                            }
+                        } catch (Exception e) {
+                            Log.e("TimeSelection", "Error parsing availability response", e);
+                            slot.setAvailable(false);
+                        }
+
+                        checkedSlots[0]++;
+                        if (checkedSlots[0] == totalSlots) {
+                            // All slots checked, setup the adapter
+                            setupTimeSlotsAdapter();
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(String error) {
+                    runOnUiThread(() -> {
+                        Log.e("TimeSelection", "Availability check error: " + error);
+                        slot.setAvailable(false); // Mark as unavailable if error
+
+                        checkedSlots[0]++;
+                        if (checkedSlots[0] == totalSlots) {
+                            // All slots checked, setup the adapter
+                            setupTimeSlotsAdapter();
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    private void checkTimeSlotAvailability(TimeSlot timeSlot, ApiService.ApiResponseListener listener) {
+        ApiService apiService = new ApiService(this);
+
+        // Convert time to 24-hour format for the API
+        String time24h = convertTo24Hour(timeSlot.getTime());
+
+        apiService.checkAppointmentAvailability(selectedDate, time24h, listener);
+    }
+
+    private void setupTimeSlotsAdapter() {
+        // DEBUG: Check final time slots availability
+        System.out.println("Final time slots availability:");
+        int availableCount = 0;
         for (TimeSlot slot : timeSlotList) {
             System.out.println("Time: " + slot.getTime() + ", Available: " + slot.isAvailable());
+            if (slot.isAvailable()) availableCount++;
         }
+        System.out.println("Total available slots: " + availableCount + "/" + timeSlotList.size());
 
         // Setup RecyclerView with grid layout (3 columns)
         GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
@@ -146,6 +196,9 @@ public class TimeSelectionActivity extends AppCompatActivity {
 
         // Make sure RecyclerView is visible
         rvTimeSlots.setVisibility(View.VISIBLE);
+
+        // Show summary toast
+        Toast.makeText(this, availableCount + " time slots available", Toast.LENGTH_SHORT).show();
     }
 
     private List<TimeSlot> generateTimeSlots() {
@@ -170,11 +223,23 @@ public class TimeSelectionActivity extends AppCompatActivity {
                 if (displayHour == 0) displayHour = 12;
 
                 String time = String.format(Locale.getDefault(), "%d:%02d %s", displayHour, minute, period);
-                slots.add(new TimeSlot(time, true));
+                slots.add(new TimeSlot(time, true)); // Initially mark all as available
             }
         }
 
         return slots;
+    }
+
+    private String convertTo24Hour(String time12) {
+        try {
+            SimpleDateFormat displayFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
+            SimpleDateFormat dbFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+            java.util.Date date = displayFormat.parse(time12);
+            return dbFormat.format(date);
+        } catch (Exception e) {
+            Log.e("TimeSelection", "Error converting time format: " + time12, e);
+            return "08:00:00"; // Default fallback
+        }
     }
 
     private void onTimeSlotSelected(TimeSlot timeSlot) {

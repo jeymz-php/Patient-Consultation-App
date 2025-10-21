@@ -614,7 +614,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Back to Dashboard"
+            android:text="Set Schedule Consultation"
             android:backgroundTint="#E87C00"
             android:textColor="@android:color/white"
             app:cornerRadius="12dp"

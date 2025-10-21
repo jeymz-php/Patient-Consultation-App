@@ -20,7 +20,7 @@ public class PatientProfileActivity extends AppCompatActivity {
     private TextView txtName, txtBirthdate, txtSex, txtHeight, txtWeight, txtMaritalStatus;
     private TextView txtContact, txtEmail, txtBarangay, txtAddress, txtCity;
     private TextView txtEmergencyName, txtEmergencyRelation, txtEmergencyContact;
-    private Button btnEdit, btnDashboard;
+    private Button btnEdit, btnScheduleConsultation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,11 +55,12 @@ public class PatientProfileActivity extends AppCompatActivity {
             // Don't finish() here if you want user to come back to profile after editing
         });
 
-        btnDashboard.setOnClickListener(v -> {
-            Intent intent = new Intent(PatientProfileActivity.this, DashboardActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        btnScheduleConsultation.setOnClickListener(v -> {
+            Log.d(TAG, "Schedule Consultation button clicked");
+
+            // Navigate to DateSelectionActivity
+            Intent intent = new Intent(PatientProfileActivity.this, DateSelectionActivity.class);
             startActivity(intent);
-            finish(); // Remove current activity from stack
         });
     }
 
@@ -104,7 +105,7 @@ public class PatientProfileActivity extends AppCompatActivity {
         txtEmergencyContact = findViewById(R.id.txtEmergencyContact);
 
         btnEdit = findViewById(R.id.btnEdit);
-        btnDashboard = findViewById(R.id.btnDashboard);
+        btnScheduleConsultation = findViewById(R.id.btnDashboard); // Using the same button ID from XML
     }
 
     private void loadPatientData() {

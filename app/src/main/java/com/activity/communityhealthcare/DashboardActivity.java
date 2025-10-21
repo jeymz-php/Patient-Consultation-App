@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.volley.BuildConfig;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -258,8 +257,9 @@ public class DashboardActivity extends AppCompatActivity {
                             // Show success message
                             Toast.makeText(DashboardActivity.this, "Tracking number verified! Welcome " + patientData.getFirstName(), Toast.LENGTH_SHORT).show();
 
-                            // Proceed to Doctors List Activity
-                            startActivity(new Intent(DashboardActivity.this, DoctorsListActivity.class));
+                            // CORRECTED: Navigate to PatientProfileActivity
+                            Intent intent = new Intent(DashboardActivity.this, PatientProfileActivity.class);
+                            startActivity(intent);
                         } else {
                             // Tracking number not found
                             String message = response.has("message") ? response.getString("message") : "Tracking number not found";

@@ -239,4 +239,57 @@ public class ApiService {
             listener.onError("JSON error: " + e.getMessage());
         }
     }
+    // Add this method to your ApiService class
+    public void checkAppointmentAvailability(String appointmentDate, String appointmentTime, ApiResponseListener listener) {
+        try {
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("appointment_date", appointmentDate);
+            requestBody.put("appointment_time", appointmentTime);
+
+            Log.d("ApiService", "Checking availability - Date: " + appointmentDate + ", Time: " + appointmentTime);
+            Log.d("ApiService", "Sending request to: " + ApiConfig.CHECK_AVAILABILITY);
+            Log.d("ApiService", "Request body: " + requestBody.toString());
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.POST,
+                    ApiConfig.CHECK_AVAILABILITY,
+                    requestBody,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Log.d("ApiService", "Availability response: " + response.toString());
+                            listener.onSuccess(response);
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            String errorMessage = "Network error";
+                            if (error.networkResponse != null) {
+                                int statusCode = error.networkResponse.statusCode;
+                                String responseData = new String(error.networkResponse.data);
+                                errorMessage = "Server error " + statusCode + ": " + responseData;
+                                Log.e("ApiService", "Server error: " + statusCode + " - " + responseData);
+                            } else if (error.getMessage() != null) {
+                                errorMessage = "Network error: " + error.getMessage();
+                            }
+                            Log.e("ApiService", "Availability check error: " + errorMessage);
+                            listener.onError(errorMessage);
+                        }
+                    }
+            );
+
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(
+                    30000,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            ));
+
+            requestQueue.add(jsonObjectRequest);
+
+        } catch (JSONException e) {
+            Log.e("ApiService", "JSON error", e);
+            listener.onError("JSON error: " + e.getMessage());
+        }
+    }
 }

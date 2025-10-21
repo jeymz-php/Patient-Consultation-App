@@ -37,9 +37,6 @@
             android:name=".TimeSelectionActivity"
             android:exported="false" />
         <activity
-            android:name=".DoctorsListActivity"
-            android:exported="false" />
-        <activity
             android:name=".PatientInformationActivity"
             android:exported="false" />
         <activity
