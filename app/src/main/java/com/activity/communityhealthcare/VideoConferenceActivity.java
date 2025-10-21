@@ -1,343 +1,232 @@
 package com.activity.communityhealthcare;
 
 import android.content.Intent;
-import android.graphics.Color;
-import android.media.MediaPlayer;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.Handler;
 import android.util.Log;
-import android.view.SurfaceView;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-import com.google.android.material.button.MaterialButton;
+import org.jitsi.meet.sdk.JitsiMeet;
+import org.jitsi.meet.sdk.JitsiMeetActivity;
+import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
+import org.jitsi.meet.sdk.JitsiMeetUserInfo;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 public class VideoConferenceActivity extends AppCompatActivity {
 
     private static final String TAG = "VideoConferenceDebug";
-
-    // UI Components
-    private MaterialButton btnBack, btnMute, btnVideo, btnEndCall, btnSwitchCamera, btnMore;
-    private SurfaceView surfaceRemoteVideo, surfaceLocalVideo;
-    private TextView txtDoctorName, txtDoctorSpecialty, txtCallStatus, txtCallTimer, txtRemoteParticipant;
-    private View layoutVideoOff, layoutLocalVideoOff, layoutConnectionQuality;
-    private TextView txtConnectionQuality;
-    private ImageView imgConnectionQuality;
-
-    // Conference state
-    private boolean isMuted = false;
-    private boolean isVideoOn = true;
-    private boolean isFrontCamera = true;
-    private boolean isCallActive = false;
-
-    // Timer
-    private CountDownTimer callTimer;
-    private long callDuration = 0;
+    private String doctorName, appointmentId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate: Starting VideoConferenceActivity");
+        Log.d(TAG, "onCreate: Starting Jitsi Video Conference");
 
-        setFullScreenMode();
-        setContentView(R.layout.activity_video_conference);
-        setupWindowInsets();
-
-        initializeViews();
-        setupCall();
-        setupControls();
-
-        Log.d(TAG, "Video conference setup complete");
-    }
-
-    private void setFullScreenMode() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = getWindow();
-            window.setStatusBarColor(Color.parseColor("#0F172A"));
-            window.setNavigationBarColor(Color.parseColor("#1E293B"));
-
-            // Make content appear behind the status bar
-            window.getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-                            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            );
-        }
-
-        // Keep screen on during call
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    }
-
-    private void setupWindowInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content),
-                (v, insets) -> {
-                    // Simple insets handling without the problematic controlsLayout
-                    return WindowInsetsCompat.CONSUMED;
-                });
-    }
-
-    private void initializeViews() {
-        Log.d(TAG, "Initializing video conference views...");
-
-        // Header views
-        btnBack = findViewById(R.id.btnBack);
-        txtDoctorName = findViewById(R.id.txtDoctorName);
-        txtDoctorSpecialty = findViewById(R.id.txtDoctorSpecialty);
-        txtCallStatus = findViewById(R.id.txtCallStatus);
-
-        // Video views
-        surfaceRemoteVideo = findViewById(R.id.surfaceRemoteVideo);
-        surfaceLocalVideo = findViewById(R.id.surfaceLocalVideo);
-        layoutVideoOff = findViewById(R.id.layoutVideoOff);
-        layoutLocalVideoOff = findViewById(R.id.layoutLocalVideoOff);
-        txtRemoteParticipant = findViewById(R.id.txtRemoteParticipant);
-
-        // Connection quality
-        layoutConnectionQuality = findViewById(R.id.layoutConnectionQuality);
-        txtConnectionQuality = findViewById(R.id.txtConnectionQuality);
-        imgConnectionQuality = findViewById(R.id.imgConnectionQuality);
-
-        // Control views
-        txtCallTimer = findViewById(R.id.txtCallTimer);
-        btnMute = findViewById(R.id.btnMute);
-        btnVideo = findViewById(R.id.btnVideo);
-        btnEndCall = findViewById(R.id.btnEndCall);
-        btnSwitchCamera = findViewById(R.id.btnSwitchCamera);
-        btnMore = findViewById(R.id.btnMore);
-
-        Log.d(TAG, "All views initialized successfully");
-    }
-
-    private void setupCall() {
-        Log.d(TAG, "Setting up video call...");
-
-        // Get doctor info from intent
+        // Get intent data
         Intent intent = getIntent();
-        String doctorName = intent.getStringExtra("doctor_name");
-        String doctorSpecialty = intent.getStringExtra("doctor_specialty");
+        doctorName = intent.getStringExtra("doctor_name");
+        appointmentId = intent.getStringExtra("appointment_id");
 
-        if (doctorName != null) {
-            txtDoctorName.setText(doctorName);
-            txtRemoteParticipant.setText(doctorName);
-        }
-        if (doctorSpecialty != null) {
-            txtDoctorSpecialty.setText(doctorSpecialty);
-        }
+        Log.d(TAG, "Received data - Doctor: " + doctorName + ", Appointment ID: " + appointmentId);
 
-        // Simulate call connection
-        new Handler().postDelayed(() -> {
-            runOnUiThread(() -> {
-                txtCallStatus.setText("Connected");
-                txtCallStatus.setTextColor(Color.parseColor("#FFA726"));
-                isCallActive = true;
-                startCallTimer();
-                showConnectionQuality();
-                playConnectionSound();
-            });
-        }, 2000);
-
-        Log.d(TAG, "Call setup completed");
+        // Initialize Jitsi Meet
+        initializeJitsiMeet();
     }
 
-    private void setupControls() {
-        Log.d(TAG, "Setting up control buttons...");
-
-        // Back button
-        btnBack.setOnClickListener(v -> {
-            showEndCallConfirmation();
-        });
-
-        // Mute button
-        btnMute.setOnClickListener(v -> {
-            toggleMute();
-        });
-
-        // Video button
-        btnVideo.setOnClickListener(v -> {
-            toggleVideo();
-        });
-
-        // End call button
-        btnEndCall.setOnClickListener(v -> {
-            endCall();
-        });
-
-        // Switch camera button
-        btnSwitchCamera.setOnClickListener(v -> {
-            switchCamera();
-        });
-
-        // More options button
-        btnMore.setOnClickListener(v -> {
-            showMoreOptions();
-        });
-
-        Log.d(TAG, "Control buttons setup completed");
-    }
-
-    private void toggleMute() {
-        isMuted = !isMuted;
-
-        if (isMuted) {
-            btnMute.setIconResource(R.drawable.ic_mic_off);
-            btnMute.setBackgroundTintList(getColorStateList(R.color.muted_state_orange));
-            Toast.makeText(this, "Microphone muted", Toast.LENGTH_SHORT).show();
-        } else {
-            btnMute.setIconResource(R.drawable.ic_mic_on);
-            btnMute.setBackgroundTintList(getColorStateList(R.color.normal_state));
-            Toast.makeText(this, "Microphone on", Toast.LENGTH_SHORT).show();
-        }
-
-        // TODO: Implement actual mute functionality with your video SDK
-        Log.d(TAG, "Microphone " + (isMuted ? "muted" : "unmuted"));
-    }
-
-    private void toggleVideo() {
-        isVideoOn = !isVideoOn;
-
-        if (isVideoOn) {
-            btnVideo.setIconResource(R.drawable.ic_video_on);
-            btnVideo.setBackgroundTintList(getColorStateList(R.color.normal_state));
-            surfaceLocalVideo.setVisibility(View.VISIBLE);
-            layoutLocalVideoOff.setVisibility(View.GONE);
-            Toast.makeText(this, "Video on", Toast.LENGTH_SHORT).show();
-        } else {
-            btnVideo.setIconResource(R.drawable.ic_video_off);
-            btnVideo.setBackgroundTintList(getColorStateList(R.color.muted_state_orange));
-            surfaceLocalVideo.setVisibility(View.GONE);
-            layoutLocalVideoOff.setVisibility(View.VISIBLE);
-            Toast.makeText(this, "Video off", Toast.LENGTH_SHORT).show();
-        }
-
-        // TODO: Implement actual video toggle functionality with your video SDK
-        Log.d(TAG, "Video " + (isVideoOn ? "enabled" : "disabled"));
-    }
-
-    private void switchCamera() {
-        isFrontCamera = !isFrontCamera;
-
-        if (isFrontCamera) {
-            Toast.makeText(this, "Switched to front camera", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Switched to rear camera", Toast.LENGTH_SHORT).show();
-        }
-
-        // TODO: Implement actual camera switching with your video SDK
-        Log.d(TAG, "Switched to " + (isFrontCamera ? "front" : "rear") + " camera");
-    }
-
-    private void showMoreOptions() {
-        // TODO: Implement more options menu (chat, share screen, etc.)
-        Toast.makeText(this, "More options coming soon", Toast.LENGTH_SHORT).show();
-        Log.d(TAG, "More options requested");
-    }
-
-    private void startCallTimer() {
-        callTimer = new CountDownTimer(Long.MAX_VALUE, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                callDuration += 1000;
-                updateCallTimer();
-            }
-
-            @Override
-            public void onFinish() {
-                // Timer finished (shouldn't happen with Long.MAX_VALUE)
-            }
-        };
-        callTimer.start();
-    }
-
-    private void updateCallTimer() {
-        long seconds = callDuration / 1000;
-        long minutes = seconds / 60;
-        seconds = seconds % 60;
-
-        String timeString = String.format("%02d:%02d", minutes, seconds);
-        txtCallTimer.setText(timeString);
-    }
-
-    private void showConnectionQuality() {
-        layoutConnectionQuality.setVisibility(View.VISIBLE);
-
-        // Simulate connection quality changes
-        new Handler().postDelayed(() -> {
-            runOnUiThread(() -> {
-                txtConnectionQuality.setText("Excellent");
-                if (imgConnectionQuality != null) {
-                    imgConnectionQuality.setColorFilter(Color.parseColor("#FFA726"));
-                }
-            });
-        }, 1000);
-    }
-
-    private void playConnectionSound() {
+    private void initializeJitsiMeet() {
         try {
-            // TODO: Play connection sound if needed
-            // MediaPlayer.create(this, R.raw.connection_sound).start();
+            // Use public Jitsi server
+            URL serverURL = new URL("https://meet.jit.si");
+
+            Log.d(TAG, "Using public Jitsi server: " + serverURL.toString());
+
+            // Create config overrides to disable password completely
+            Map<String, Object> configOverrides = new HashMap<>();
+            configOverrides.put("prejoinPageEnabled", false);
+            configOverrides.put("requireDisplayName", false);
+            configOverrides.put("enableWelcomePage", false);
+            configOverrides.put("enableLobby", false);
+            configOverrides.put("enableNoAudioDetection", false);
+            configOverrides.put("startWithAudioMuted", false);
+            configOverrides.put("startWithVideoMuted", false);
+            configOverrides.put("disableModeratorIndicator", false);
+            configOverrides.put("startScreenSharing", false);
+            configOverrides.put("enableEmailInStats", false);
+            configOverrides.put("disableShortcuts", false);
+            configOverrides.put("disableInitialGUMPermissionPrompt", false);
+            configOverrides.put("enableAutomaticUrlCopy", false);
+            configOverrides.put("subject", "Medical Consultation");
+
+            // Critical: Disable password and authentication
+            configOverrides.put("enableUserRolesBasedOnToken", false);
+            configOverrides.put("enableClosePage", false);
+            configOverrides.put("defaultLanguage", "en");
+            configOverrides.put("disableThirdPartyRequests", true);
+
+            JitsiMeetConferenceOptions defaultOptions = new JitsiMeetConferenceOptions.Builder()
+                    .setServerURL(serverURL)
+                    // Feature flags to disable security
+                    .setFeatureFlag("meeting-password.enabled", false)
+                    .setFeatureFlag("lobby-mode.enabled", false)
+                    .setFeatureFlag("add-people.enabled", false)
+                    .setFeatureFlag("invite.enabled", false)
+                    .setFeatureFlag("live-streaming.enabled", false)
+                    .setFeatureFlag("recording.enabled", false)
+                    .setFeatureFlag("calendar.enabled", false)
+                    .setFeatureFlag("close-captions.enabled", false)
+                    .setFeatureFlag("pip.enabled", true)
+                    .setFeatureFlag("raise-hand.enabled", true)
+                    .setFeatureFlag("video-share.enabled", true)
+                    .setFeatureFlag("filmstrip.enabled", true)
+                    .setFeatureFlag("feedback.enabled", false)
+                    .setFeatureFlag("toolbox.alwaysVisible", false)
+                    .setFeatureFlag("resolutions.enabled", true)
+                    // Config overrides
+                    .setConfigOverride("prejoinPageEnabled", false)
+                    .setConfigOverride("requireDisplayName", false)
+                    .setConfigOverride("enableWelcomePage", false)
+                    .setConfigOverride("enableLobby", false)
+                    .setConfigOverride("startWithAudioMuted", false)
+                    .setConfigOverride("startWithVideoMuted", false)
+                    .setConfigOverride("disableThirdPartyRequests", true)
+                    .setConfigOverride("enableClosePage", false)
+                    .setConfigOverride("disableInviteFunctions", true)
+                    .setConfigOverride("toolbarButtons", new String[]{
+                            "microphone", "camera", "closedcaptions", "desktop", "fullscreen",
+                            "fodeviceselection", "hangup", "profile", "chat", "recording",
+                            "livestreaming", "etherpad", "sharedvideo", "settings", "raisehand",
+                            "videoquality", "filmstrip", "invite", "feedback", "stats", "shortcuts",
+                            "tileview", "videobackgroundblur", "download", "help", "mute-everyone",
+                            "mute-video-everyone", "security"
+                    })
+                    .build();
+
+            JitsiMeet.setDefaultConferenceOptions(defaultOptions);
+            Log.d(TAG, "Jitsi Meet initialized successfully with public server");
+
+            // Start the video call
+            startVideoCall();
+
+        } catch (MalformedURLException e) {
+            Log.e(TAG, "Invalid server URL: " + e.getMessage());
+            showErrorAndFinish("Invalid server configuration");
         } catch (Exception e) {
-            Log.e(TAG, "Error playing connection sound", e);
+            Log.e(TAG, "Error initializing Jitsi Meet: " + e.getMessage(), e);
+            showErrorAndFinish("Failed to initialize video conference");
         }
     }
 
-    private void showEndCallConfirmation() {
-        if (isCallActive) {
-            new androidx.appcompat.app.AlertDialog.Builder(this)
-                    .setTitle("End Call")
-                    .setMessage("Are you sure you want to end the video consultation?")
-                    .setPositiveButton("End Call", (dialog, which) -> endCall())
-                    .setNegativeButton("Continue", null)
-                    .show();
-        } else {
+    private void startVideoCall() {
+        try {
+            String patientName = getPatientName();
+
+            // Generate unique room name - make it simple
+            String roomName = "BarangayHealth" + System.currentTimeMillis();
+
+            Log.d(TAG, "=== Starting Video Call on Public Jitsi ===");
+            Log.d(TAG, "Room: " + roomName);
+            Log.d(TAG, "Patient: " + patientName);
+            Log.d(TAG, "Doctor: " + doctorName);
+            Log.d(TAG, "========================");
+
+            // Create user info
+            JitsiMeetUserInfo userInfo = new JitsiMeetUserInfo();
+            userInfo.setDisplayName(patientName);
+
+            JitsiMeetConferenceOptions options = new JitsiMeetConferenceOptions.Builder()
+                    .setRoom(roomName)
+                    .setUserInfo(userInfo)
+                    .setSubject("Medical Consultation with " + (doctorName != null ? doctorName : "Doctor"))
+                    .setAudioMuted(false)
+                    .setVideoMuted(false)
+                    .setAudioOnly(false)
+                    // Aggressively disable all security features
+                    .setFeatureFlag("meeting-password.enabled", false)
+                    .setFeatureFlag("lobby-mode.enabled", false)
+                    .setFeatureFlag("prejoinpage.enabled", false)
+                    .setFeatureFlag("welcomepage.enabled", false)
+                    .setFeatureFlag("invite.enabled", false)
+                    .setFeatureFlag("add-people.enabled", false)
+                    .setFeatureFlag("live-streaming.enabled", false)
+                    .setFeatureFlag("recording.enabled", false)
+                    .setFeatureFlag("calendar.enabled", false)
+                    .setFeatureFlag("close-captions.enabled", false)
+                    .setFeatureFlag("pip.enabled", true)
+                    .setFeatureFlag("filmstrip.enabled", true)
+                    .setFeatureFlag("toolbox.alwaysVisible", false)
+                    .setFeatureFlag("resolution", 360)
+                    // Critical config overrides
+                    .setConfigOverride("prejoinPageEnabled", false)
+                    .setConfigOverride("requireDisplayName", false)
+                    .setConfigOverride("enableWelcomePage", false)
+                    .setConfigOverride("enableLobby", false)
+                    .setConfigOverride("startWithAudioMuted", false)
+                    .setConfigOverride("startWithVideoMuted", false)
+                    .setConfigOverride("disableThirdPartyRequests", true)
+                    .setConfigOverride("enableClosePage", false)
+                    .setConfigOverride("disableInviteFunctions", true)
+                    // Remove security toolbar button
+                    .setConfigOverride("toolbarButtons", new String[]{
+                            "microphone", "camera", "closedcaptions", "desktop", "fullscreen",
+                            "fodeviceselection", "hangup", "profile", "chat", "recording",
+                            "livestreaming", "etherpad", "sharedvideo", "settings", "raisehand",
+                            "videoquality", "filmstrip", "invite", "feedback", "stats", "shortcuts",
+                            "tileview", "videobackgroundblur", "download", "help", "mute-everyone",
+                            "mute-video-everyone"
+                            // "security" button removed from the list
+                    })
+                    .build();
+
+            // Launch Jitsi Meet Activity
+            JitsiMeetActivity.launch(this, options);
+
+            Log.d(TAG, "Jitsi Meet activity launched successfully");
+
+            // Finish this activity since Jitsi takes over
             finish();
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error starting video call: " + e.getMessage(), e);
+            showErrorAndFinish("Failed to start video conference: " + e.getMessage());
         }
     }
 
-    private void endCall() {
-        Log.d(TAG, "Ending video call...");
+    private String getPatientName() {
+        try {
+            android.content.SharedPreferences prefs = getSharedPreferences("PatientData", MODE_PRIVATE);
+            String firstName = prefs.getString("first_name", "Patient");
+            String lastName = prefs.getString("last_name", "");
+            String patientId = prefs.getString("patient_id", "");
 
-        if (callTimer != null) {
-            callTimer.cancel();
+            Log.d(TAG, "Patient data - First: " + firstName + ", Last: " + lastName + ", ID: " + patientId);
+
+            if (lastName.isEmpty()) {
+                return firstName;
+            } else {
+                return firstName + " " + lastName;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting patient name: " + e.getMessage());
+            return "Patient";
         }
+    }
 
-        isCallActive = false;
-
-        // TODO: Implement actual call termination with your video SDK
-
-        // Show call ended message
-        Toast.makeText(this, "Call ended - Duration: " + txtCallTimer.getText(), Toast.LENGTH_LONG).show();
-
-        // Return to previous activity
-        new Handler().postDelayed(() -> {
+    private void showErrorAndFinish(String message) {
+        runOnUiThread(() -> {
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            Log.e(TAG, "Error: " + message);
             finish();
-        }, 1000);
+        });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "VideoConferenceActivity destroyed");
-
-        if (callTimer != null) {
-            callTimer.cancel();
-        }
-
-        if (isCallActive) {
-            endCall();
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        showEndCallConfirmation();
     }
 }

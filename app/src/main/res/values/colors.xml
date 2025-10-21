@@ -10,4 +10,6 @@
     <color name="orange_primary">#FFA726</color>
     <color name="orange_dark">#F57C00</color>
     <color name="orange_light">#FFE0B2</color>
+
+    <color name="normal_state_orange">#C96A00</color>
 </resources>
