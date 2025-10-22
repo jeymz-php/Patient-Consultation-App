@@ -23,6 +23,7 @@ public class VideoConferenceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_video_conference);
         Log.d(TAG, "onCreate: Starting Jitsi Video Conference");
 
         // Get intent data
@@ -87,20 +88,22 @@ public class VideoConferenceActivity extends AppCompatActivity {
             JitsiMeetConferenceOptions options = new JitsiMeetConferenceOptions.Builder()
                     .setServerURL(new URL("https://8x8.vc"))
                     .setRoom("vpaas-magic-cookie-40d1b83f34d64323bff4f2b89581daf0/BarangayConsultation")
-                    .setToken("YOUR_JWT_TOKEN_HERE")
+                    .setToken("eyJraWQiOiJ2cGFhcy1tYWdpYy1jb29raWUtNDBkMWI4M2YzNGQ2NDMyM2JmZjRmMmI4OTU4MWRhZjAvOWJmZTY2LVNBTVBMRV9BUFAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJqaXRzaSIsImlzcyI6ImNoYXQiLCJpYXQiOjE3NjExMDk5NDUsImV4cCI6MTc2MTExNzE0NSwibmJmIjoxNzYxMTA5OTQwLCJzdWIiOiJ2cGFhcy1tYWdpYy1jb29raWUtNDBkMWI4M2YzNGQ2NDMyM2JmZjRmMmI4OTU4MWRhZjAiLCJjb250ZXh0Ijp7ImZlYXR1cmVzIjp7ImxpdmVzdHJlYW1pbmciOnRydWUsImZpbGUtdXBsb2FkIjp0cnVlLCJvdXRib3VuZC1jYWxsIjp0cnVlLCJzaXAtb3V0Ym91bmQtY2FsbCI6ZmFsc2UsInRyYW5zY3JpcHRpb24iOnRydWUsImxpc3QtdmlzaXRvcnMiOmZhbHNlLCJyZWNvcmRpbmciOnRydWUsImZsaXAiOmZhbHNlfSwidXNlciI6eyJoaWRkZW4tZnJvbS1yZWNvcmRlciI6ZmFsc2UsIm1vZGVyYXRvciI6dHJ1ZSwibmFtZSI6ImpvaG5taWNoYWVsaWJlNTEiLCJpZCI6Imdvb2dsZS1vYXV0aDJ8MTA1NTI3NDYwOTIzOTk0NjkxMzEzIiwiYXZhdGFyIjoiIiwiZW1haWwiOiJqb2hubWljaGFlbGliZTUxQGdtYWlsLmNvbSJ9fSwicm9vbSI6IioifQ.Pmb9ORiPnC7UzJUn3bAl2PG-hkNKTGPkPq9fwjQrSiFB5VctNcrqSEVnRE_o8ucAWaYg5hoEvecVI1pJ001D2MO7xxiLBtxmKCaLla2oAkdGCxp4p2FjhYXWk4LaqmKp51tyTvlv8n9gaz1EK3BmMegBC75c9hiCputMn6-dMol-K0JZ7lpqlghcmJ_Jh4Kx9eVLG4dptg1RX4THJkBdyCZQGPpic0d4djHDDFvyw7Z2stMhMkfqXFRIvflnhIN81ZqpqukbpATBOxc9NTg4E8mQ0AwMetXW9Hi5XOSRsHsFr5x6_Q-WycUml7Ha6lfG3AR07wuLbKauZgb9KKttXw")
                     .setUserInfo(userInfo)
                     .setSubject("Medical Consultation")
-                    .setAudioMuted(false)
-                    .setVideoMuted(false)
                     .setFeatureFlag("meeting-password.enabled", false)
-                    .setFeatureFlag("lobby-mode.enabled", false)
+                    .setFeatureFlag("invite.enabled", false)
+                    .setFeatureFlag("live-streaming.enabled", false)
+                    .setFeatureFlag("recording.enabled", false)
                     .setConfigOverride("prejoinPageEnabled", false)
                     .setConfigOverride("requireDisplayName", false)
+                    .setAudioMuted(false)
+                    .setVideoMuted(false)
                     .build();
 
+            // Launch Jitsi Meet Activity without finishing this one
             JitsiMeetActivity.launch(this, options);
             Log.d(TAG, "Jitsi Meet activity launched successfully");
-            finish();
 
         } catch (Exception e) {
             Log.e(TAG, "Error starting video call: " + e.getMessage(), e);

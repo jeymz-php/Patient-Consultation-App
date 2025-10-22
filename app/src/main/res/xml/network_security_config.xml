@@ -4,6 +4,9 @@
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">bsitfoura.com</domain>
         <domain includeSubdomains="true">communityhealthcare.bsitfoura.com</domain>
+        <domain includeSubdomains="true">8x8.vc</domain>
+        <domain includeSubdomains="true">jitsi.net</domain>
+        <domain includeSubdomains="true">meet.jit.si</domain>
     </domain-config>
 
     <!-- Allow HTTP for local development (optional, for testing) -->

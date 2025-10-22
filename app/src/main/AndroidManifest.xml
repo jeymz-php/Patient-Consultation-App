@@ -2,17 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:allowBackup="true"
@@ -24,6 +23,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
+
+        <!-- DO NOT manually declare OrientationBroadcastReceiver here -->
+        <!-- It’s automatically handled by the Jitsi SDK internally -->
+
         <activity
             android:name=".VideoConferenceActivity"
             android:exported="false" />
@@ -54,7 +57,6 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -62,6 +64,27 @@
             android:name=".DashboardActivity"
             android:exported="true"
             android:theme="@style/AppTheme.NoActionBar" />
+
+        <!-- Jitsi SDK Activities -->
+        <activity
+            android:name="org.jitsi.meet.sdk.JitsiMeetActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="true"
+            tools:replace="android:configChanges,android:launchMode,android:windowSoftInputMode,android:theme" />
+
+        <!-- NOTE: Remove this line — JitsiMeetView is not declared as an Activity -->
+        <!-- <activity android:name="org.jitsi.meet.sdk.JitsiMeetView" ... /> -->
+        <!-- Replace it with nothing — JitsiMeetView is a View class, not an Activity -->
+
+        <!-- Background service -->
+        <service
+            android:name="org.jitsi.meet.sdk.JitsiMeetOngoingConferenceService"
+            android:enabled="true"
+            android:exported="false" />
+
     </application>
 
 </manifest>
