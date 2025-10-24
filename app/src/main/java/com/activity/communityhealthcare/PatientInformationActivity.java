@@ -395,7 +395,7 @@ public class PatientInformationActivity extends AppCompatActivity {
 
     // Update patient data method
     private void updatePatientData() {
-        String url = "https://communityhealthcare.bsitfoura.com/app/update_patient.php";
+        String url = "https://communityhealthcare.bsitfoura.com/api/update_patient.php";
         Log.d(TAG, "Updating patient data: " + url);
 
         try {
@@ -503,7 +503,7 @@ public class PatientInformationActivity extends AppCompatActivity {
     }
 
     private void submitToServer() {
-        String url = "https://communityhealthcare.bsitfoura.com/app/register_patient.php";
+        String url = "https://communityhealthcare.bsitfoura.com/api/addPatient.php";
         Log.d(TAG, "Submitting to: " + url);
 
         try {

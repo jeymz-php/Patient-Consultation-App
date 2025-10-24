@@ -1,6 +1,7 @@
 package com.activity.communityhealthcare;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -241,33 +242,28 @@ public class DashboardActivity extends AppCompatActivity {
             public void onSuccess(JSONObject response) {
                 runOnUiThread(() -> {
                     try {
-                        if (response.has("success") && response.getBoolean("success")) {
-                            // Tracking number found
-                            JSONObject patientDataJson = response.getJSONObject("patient_data");
-                            PatientData patientData = parsePatientDataFromJson(patientDataJson);
+                        if ((response.has("success") && response.getBoolean("success")) ||
+                                (response.has("exists") && response.getBoolean("exists"))) {
 
+                            JSONObject patientDataJson = response.has("patient_data")
+                                    ? response.getJSONObject("patient_data")
+                                    : response.getJSONObject("patient");
+
+                            PatientData patientData = parsePatientDataFromJson(patientDataJson);
                             savePatientDataToSharedPreferences(patientData);
 
-                            // Save tracking number
-                            android.content.SharedPreferences prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE);
+                            SharedPreferences prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE);
                             prefs.edit().putString("tracking_number", trackingNumber).apply();
 
                             dialog.dismiss();
-
-                            // Show success message
                             Toast.makeText(DashboardActivity.this, "Tracking number verified! Welcome " + patientData.getFirstName(), Toast.LENGTH_SHORT).show();
 
-                            // CORRECTED: Navigate to PatientProfileActivity
                             Intent intent = new Intent(DashboardActivity.this, PatientProfileActivity.class);
                             startActivity(intent);
+
                         } else {
-                            // Tracking number not found
                             String message = response.has("message") ? response.getString("message") : "Tracking number not found";
                             Toast.makeText(DashboardActivity.this, message, Toast.LENGTH_LONG).show();
-
-                            // Reset button state
-                            btnConfirmTracking.setEnabled(true);
-                            btnConfirmTracking.setText("Confirm Tracking Number");
                         }
                     } catch (JSONException e) {
                         Log.e("DashboardActivity", "JSON parsing error", e);
@@ -304,22 +300,24 @@ public class DashboardActivity extends AppCompatActivity {
     private PatientData parsePatientDataFromJson(JSONObject json) throws JSONException {
         PatientData patientData = new PatientData();
 
-        patientData.setFirstName(json.getString("first_name"));
-        patientData.setLastName(json.getString("last_name"));
-        patientData.setDateOfBirth(json.getString("date_of_birth"));
-        patientData.setGender(json.getString("gender"));
-        patientData.setContactNumber(json.getString("contact_number"));
-        patientData.setEmail(json.getString("email"));
-        patientData.setAddress(json.getString("address"));
-        patientData.setCivilStatus(json.getString("civil_status"));
-        patientData.setBarangay(json.getString("barangay"));
-        patientData.setEmergencyFirstName(json.getString("emergency_first_name"));
-        patientData.setEmergencyLastName(json.getString("emergency_last_name"));
-        patientData.setEmergencyRelationship(json.getString("emergency_relationship"));
-        patientData.setEmergencyContactNumber(json.getString("emergency_contact_number"));
-        patientData.setTrackingNumber(json.getString("tracking_number"));
-        patientData.setPatientId(json.getInt("patient_id"));
-        patientData.setResidentId(json.getInt("resident_id"));
+        patientData.setFirstName(json.optString("first_name", ""));
+        patientData.setLastName(json.optString("last_name", ""));
+        patientData.setDateOfBirth(json.optString("date_of_birth", ""));
+        patientData.setGender(json.optString("gender", ""));
+        patientData.setContactNumber(json.optString("contact_number", ""));
+        patientData.setEmail(json.optString("email", ""));
+        patientData.setAddress(json.optString("address", ""));
+        patientData.setCivilStatus(json.optString("civil_status", ""));
+        patientData.setBarangay(json.optString("barangay_name", "")); // ✅ corrected key
+        patientData.setTrackingNumber(json.optString("tracking_number", ""));
+        patientData.setResidentId(json.optInt("resident_id", 0));
+
+        // ⚠️ These fields don’t exist in PHP response — protect them
+        patientData.setEmergencyFirstName(json.optString("emergency_first_name", ""));
+        patientData.setEmergencyLastName(json.optString("emergency_last_name", ""));
+        patientData.setEmergencyRelationship(json.optString("emergency_relationship", ""));
+        patientData.setEmergencyContactNumber(json.optString("emergency_contact_number", ""));
+        patientData.setPatientId(json.optInt("patient_id", 0)); // might be missing — use 0 default
 
         return patientData;
     }

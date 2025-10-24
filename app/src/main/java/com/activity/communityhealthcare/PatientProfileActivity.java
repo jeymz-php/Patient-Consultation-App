@@ -19,7 +19,6 @@ public class PatientProfileActivity extends AppCompatActivity {
 
     private TextView txtName, txtBirthdate, txtSex, txtHeight, txtWeight, txtMaritalStatus;
     private TextView txtContact, txtEmail, txtBarangay, txtAddress, txtCity;
-    private TextView txtEmergencyName, txtEmergencyRelation, txtEmergencyContact;
     private Button btnEdit, btnScheduleConsultation;
 
     @Override
@@ -100,9 +99,6 @@ public class PatientProfileActivity extends AppCompatActivity {
         txtBarangay = findViewById(R.id.txtBarangay);
         txtAddress = findViewById(R.id.txtAddress);
         txtCity = findViewById(R.id.txtCity);
-        txtEmergencyName = findViewById(R.id.txtEmergencyName);
-        txtEmergencyRelation = findViewById(R.id.txtEmergencyRelation);
-        txtEmergencyContact = findViewById(R.id.txtEmergencyContact);
 
         btnEdit = findViewById(R.id.btnEdit);
         btnScheduleConsultation = findViewById(R.id.btnDashboard); // Using the same button ID from XML
@@ -129,11 +125,5 @@ public class PatientProfileActivity extends AppCompatActivity {
         txtBarangay.setText(prefs.getString("barangay", "N/A"));
         txtAddress.setText(prefs.getString("address", "N/A"));
         txtCity.setText(prefs.getString("city", "N/A"));
-        txtEmergencyName.setText(
-                prefs.getString("emergency_first_name", "N/A") + " " +
-                        prefs.getString("emergency_last_name", "")
-        );
-        txtEmergencyRelation.setText(prefs.getString("emergency_relationship", "N/A"));
-        txtEmergencyContact.setText(prefs.getString("emergency_contact_number", "N/A"));
     }
 }

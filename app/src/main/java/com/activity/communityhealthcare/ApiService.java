@@ -9,6 +9,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
@@ -24,9 +25,6 @@ public class ApiService {
     public ApiService(Context context) {
         this.context = context;
         this.requestQueue = Volley.newRequestQueue(context);
-
-        // Set default timeout for all requests
-        this.requestQueue.getCache().initialize();
     }
 
     public interface ApiResponseListener {
@@ -34,116 +32,98 @@ public class ApiService {
         void onError(String error);
     }
 
+    // ✅ 1. Validate Tracking Number  → checkTrackingID.php
     public void validateTrackingNumber(String trackingNumber, ApiResponseListener listener) {
-        try {
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("tracking_number", trackingNumber);
-
-            Log.d("ApiService", "Sending request to: " + ApiConfig.VALIDATE_TRACKING);
-            Log.d("ApiService", "Request body: " + requestBody.toString());
-
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                    Request.Method.POST,
-                    ApiConfig.VALIDATE_TRACKING,
-                    requestBody,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            Log.d("ApiService", "Response received: " + response.toString());
-                            listener.onSuccess(response);
-                        }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            String errorMessage = "Network error";
-
-                            if (error.networkResponse != null) {
-                                int statusCode = error.networkResponse.statusCode;
-                                String responseData = new String(error.networkResponse.data);
-                                errorMessage = "Server error " + statusCode + ": " + responseData;
-                                Log.e("ApiService", "Server error: " + statusCode + " - " + responseData);
-                            } else if (error.getMessage() != null) {
-                                errorMessage = "Network error: " + error.getMessage();
-                                Log.e("ApiService", "Network error: " + error.getMessage());
-                            } else {
-                                Log.e("ApiService", "Unknown network error");
-                            }
-
-                            // Log the full error for debugging
-                            error.printStackTrace();
-                            listener.onError(errorMessage);
-                        }
+        StringRequest request = new StringRequest(
+                Request.Method.POST,
+                ApiConfig.VALIDATE_TRACKING,
+                response -> {
+                    try {
+                        JSONObject jsonResponse = new JSONObject(response);
+                        listener.onSuccess(jsonResponse);
+                    } catch (JSONException e) {
+                        listener.onError("Invalid JSON: " + e.getMessage());
                     }
-            ) {
-                @Override
-                public Map<String, String> getHeaders() {
-                    Map<String, String> headers = new HashMap<>();
-                    headers.put("Content-Type", "application/json");
-                    headers.put("Accept", "application/json");
-                    return headers;
+                },
+                error -> {
+                    String errorMessage = "Network error";
+                    if (error.getMessage() != null) {
+                        errorMessage = error.getMessage();
+                    }
+                    listener.onError(errorMessage);
                 }
-            };
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("tracking_number", trackingNumber);
+                Log.d("ApiService", "Sending tracking_number: " + trackingNumber);
+                return params;
+            }
 
-            // Set timeout using RetryPolicy instead
-            jsonObjectRequest.setRetryPolicy(new com.android.volley.DefaultRetryPolicy(
-                    30000, // 30 seconds timeout
-                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-            ));
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/x-www-form-urlencoded");
+                headers.put("Accept", "application/json");
+                return headers;
+            }
+        };
 
-            requestQueue.add(jsonObjectRequest);
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                30000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
 
-        } catch (JSONException e) {
-            Log.e("ApiService", "JSON error: " + e.getMessage());
-            listener.onError("JSON error: " + e.getMessage());
-        }
+        requestQueue.add(request);
     }
 
-    // Add method to get all tracking numbers (for debugging)
-    public void getAllTrackingNumbers(ApiResponseListener listener) {
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                Request.Method.GET,
-                ApiConfig.GET_ALL_TRACKING,
-                null,
-                new Response.Listener<JSONObject>() {
+    // ✅ Restored getAllTrackingNumbers() — uses checkTrackingID.php and returns JSONObject
+    public void getAllTrackingNumbers(final ApiResponseListener listener) {
+        StringRequest request = new StringRequest(Request.Method.POST, ApiConfig.VALIDATE_TRACKING,
+                new Response.Listener<String>() {
                     @Override
-                    public void onResponse(JSONObject response) {
-                        Log.d("ApiService", "Tracking numbers response: " + response.toString());
-                        listener.onSuccess(response);
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            listener.onSuccess(jsonResponse);
+                        } catch (JSONException e) {
+                            listener.onError("Invalid JSON response: " + e.getMessage());
+                        }
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         String errorMessage = "Network error";
-
-                        if (error.networkResponse != null) {
-                            int statusCode = error.networkResponse.statusCode;
-                            String responseData = new String(error.networkResponse.data);
-                            errorMessage = "Server error " + statusCode + ": " + responseData;
-                        } else if (error.getMessage() != null) {
-                            errorMessage = "Network error: " + error.getMessage();
+                        if (error.getMessage() != null) {
+                            errorMessage = error.getMessage();
                         }
-
-                        Log.e("ApiService", "Error getting tracking numbers: " + errorMessage);
                         listener.onError(errorMessage);
                     }
-                }
-        );
+                }) {
+            @Override
+            protected Map<String, String> getParams() {
+                // 🧠 No parameters — fetch all tracking IDs
+                return new HashMap<>();
+            }
+        };
 
-        // Set timeout for this request too
-        jsonObjectRequest.setRetryPolicy(new com.android.volley.DefaultRetryPolicy(
-                30000,
+        // Optional: retry policy for reliability
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                10000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         ));
 
-        requestQueue.add(jsonObjectRequest);
+        requestQueue.add(request);
     }
 
-    public void saveAppointment(String patientId, String trackingNumber, String doctorName,
-                                String doctorSpecialty, String appointmentDate, String appointmentTime,
+    // ✅ 2. Add Schedule Consultation  → addSchedule.php
+    public void saveAppointment(String patientId, String trackingNumber,
+                                String doctorName, String doctorSpecialty,
+                                String appointmentDate, String appointmentTime,
                                 ApiResponseListener listener) {
         try {
             JSONObject requestBody = new JSONObject();
@@ -160,40 +140,55 @@ public class ApiService {
                     Request.Method.POST,
                     ApiConfig.SAVE_APPOINTMENT,
                     requestBody,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            Log.d("ApiService", "Appointment response: " + response.toString());
-                            listener.onSuccess(response);
-                        }
+                    response -> {
+                        Log.d("ApiService", "Appointment response: " + response.toString());
+                        listener.onSuccess(response);
                     },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            String errorMessage = "Network error";
-                            if (error.getMessage() != null) {
-                                errorMessage = "Network error: " + error.getMessage();
-                            }
-                            Log.e("ApiService", "Appointment save error: " + errorMessage);
-                            listener.onError(errorMessage);
-                        }
-                    }
+                    error -> handleError("saveAppointment", error, listener)
             );
 
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(
-                    30000,
-                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-            ));
-
+            applyRetryPolicy(jsonObjectRequest);
             requestQueue.add(jsonObjectRequest);
 
         } catch (JSONException e) {
-            Log.e("ApiService", "JSON error", e);
             listener.onError("JSON error: " + e.getMessage());
         }
     }
 
+    // ✅ 3. Register/Add Patient → addPatient.php
+    public void registerPatient(String fullName, String age, String gender,
+                                String contactNumber, String address,
+                                ApiResponseListener listener) {
+        try {
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("fullname", fullName);
+            requestBody.put("age", age);
+            requestBody.put("gender", gender);
+            requestBody.put("contact", contactNumber);
+            requestBody.put("address", address);
+
+            Log.d("ApiService", "Registering patient: " + requestBody.toString());
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.POST,
+                    ApiConfig.REGISTER_PATIENT,
+                    requestBody,
+                    response -> {
+                        Log.d("ApiService", "Register patient response: " + response.toString());
+                        listener.onSuccess(response);
+                    },
+                    error -> handleError("registerPatient", error, listener)
+            );
+
+            applyRetryPolicy(jsonObjectRequest);
+            requestQueue.add(jsonObjectRequest);
+
+        } catch (JSONException e) {
+            listener.onError("JSON error: " + e.getMessage());
+        }
+    }
+
+    // ✅ 4. Get Consultation Logs → getSchedulesMeet.php
     public void getConsultationLogs(String patientId, String trackingNumber, ApiResponseListener listener) {
         try {
             JSONObject requestBody = new JSONObject();
@@ -206,53 +201,34 @@ public class ApiService {
                     Request.Method.POST,
                     ApiConfig.GET_CONSULTATION_LOGS,
                     requestBody,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            Log.d("ApiService", "Consultation logs response: " + response.toString());
-                            listener.onSuccess(response);
-                        }
+                    response -> {
+                        Log.d("ApiService", "Consultation logs response: " + response.toString());
+                        listener.onSuccess(response);
                     },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            String errorMessage = "Network error";
-                            if (error.getMessage() != null) {
-                                errorMessage = "Network error: " + error.getMessage();
-                            }
-                            Log.e("ApiService", "Consultation logs error: " + errorMessage);
-                            listener.onError(errorMessage);
-                        }
-                    }
+                    error -> handleError("getConsultationLogs", error, listener)
             );
 
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(
-                    30000,
-                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-            ));
-
+            applyRetryPolicy(jsonObjectRequest);
             requestQueue.add(jsonObjectRequest);
 
         } catch (JSONException e) {
-            Log.e("ApiService", "JSON error", e);
             listener.onError("JSON error: " + e.getMessage());
         }
     }
-    // Add this method to your ApiService class
+
+    // ✅ checkAppointmentAvailability() now uses getSchedulesMeet.php
     public void checkAppointmentAvailability(String appointmentDate, String appointmentTime, ApiResponseListener listener) {
         try {
             JSONObject requestBody = new JSONObject();
             requestBody.put("appointment_date", appointmentDate);
             requestBody.put("appointment_time", appointmentTime);
 
-            Log.d("ApiService", "Checking availability - Date: " + appointmentDate + ", Time: " + appointmentTime);
-            Log.d("ApiService", "Sending request to: " + ApiConfig.CHECK_AVAILABILITY);
+            Log.d("ApiService", "Checking appointment availability...");
             Log.d("ApiService", "Request body: " + requestBody.toString());
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                     Request.Method.POST,
-                    ApiConfig.CHECK_AVAILABILITY,
+                    ApiConfig.GET_CONSULTATION_LOGS, // ✅ getSchedulesMeet.php
                     requestBody,
                     new Response.Listener<JSONObject>() {
                         @Override
@@ -291,5 +267,32 @@ public class ApiService {
             Log.e("ApiService", "JSON error", e);
             listener.onError("JSON error: " + e.getMessage());
         }
+    }
+
+    // ⚙️ Helper to handle errors consistently
+    private void handleError(String tag, VolleyError error, ApiResponseListener listener) {
+        String errorMessage = "Network error";
+        if (error.networkResponse != null) {
+            int statusCode = error.networkResponse.statusCode;
+            String responseData = new String(error.networkResponse.data);
+            errorMessage = "Server error " + statusCode + ": " + responseData;
+            Log.e("ApiService", tag + " - Server error: " + statusCode + " - " + responseData);
+        } else if (error.getMessage() != null) {
+            errorMessage = "Network error: " + error.getMessage();
+            Log.e("ApiService", tag + " - Network error: " + error.getMessage());
+        } else {
+            Log.e("ApiService", tag + " - Unknown network error");
+        }
+        error.printStackTrace();
+        listener.onError(errorMessage);
+    }
+
+    // ⚙️ Helper to apply retry settings
+    private void applyRetryPolicy(JsonObjectRequest request) {
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                30000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
     }
 }
