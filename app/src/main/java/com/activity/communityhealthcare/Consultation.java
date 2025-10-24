@@ -13,12 +13,6 @@ public class Consultation {
     public String getAppointmentId() { return appointmentId; }
     public void setAppointmentId(String appointmentId) { this.appointmentId = appointmentId; }
 
-    public String getDoctorName() { return doctorName; }
-    public void setDoctorName(String doctorName) { this.doctorName = doctorName; }
-
-    public String getDoctorSpecialty() { return doctorSpecialty; }
-    public void setDoctorSpecialty(String doctorSpecialty) { this.doctorSpecialty = doctorSpecialty; }
-
     public String getAppointmentDate() { return appointmentDate; }
     public void setAppointmentDate(String appointmentDate) { this.appointmentDate = appointmentDate; }
 

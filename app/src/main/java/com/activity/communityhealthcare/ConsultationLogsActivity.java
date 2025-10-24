@@ -105,8 +105,7 @@ public class ConsultationLogsActivity extends AppCompatActivity {
     }
 
     private void showTrackingNumberDialog() {
-        // You can reuse the same tracking number dialog from DashboardActivity
-        // For now, let's redirect to Dashboard to handle tracking number input
+        // Redirect to Dashboard to handle tracking number input
         Toast.makeText(this, "Please verify your tracking number first", Toast.LENGTH_LONG).show();
         finish();
     }
@@ -166,34 +165,50 @@ public class ConsultationLogsActivity extends AppCompatActivity {
         rvConsultations.setVisibility(View.GONE);
 
         ApiService apiService = new ApiService(this);
-        apiService.getConsultationLogs(patientId, trackingNumber, new ApiService.ApiResponseListener() {
+
+        // Note: getSchedulesMeet.php doesn't use patient_id or tracking_number parameters
+        // We'll send empty strings since the PHP doesn't expect these parameters
+        apiService.getConsultationLogs("", "", new ApiService.ApiResponseListener() {
             @Override
             public void onSuccess(JSONObject response) {
                 runOnUiThread(() -> {
                     try {
-                        if (response.getBoolean("success")) {
-                            JSONArray consultationsArray = response.getJSONArray("consultations");
-                            consultationList.clear();
+                        consultationList.clear();
 
-                            if (consultationsArray.length() > 0) {
-                                for (int i = 0; i < consultationsArray.length(); i++) {
-                                    JSONObject consultationJson = consultationsArray.getJSONObject(i);
-                                    Consultation consultation = parseConsultationFromJson(consultationJson);
-                                    consultationList.add(consultation);
-                                }
+                        // Handle getSchedulesMeet.php response format
+                        if (response.has("hasSchedule")) {
+                            boolean hasSchedule = response.getBoolean("hasSchedule");
 
+                            if (hasSchedule) {
+                                // Create a Consultation object from the single appointment
+                                Consultation consultation = new Consultation();
+                                consultation.setAppointmentId("1"); // Default ID since PHP doesn't return appointment_id
+                                consultation.setAppointmentDate(response.getString("appointment_date"));
+                                consultation.setAppointmentTime(response.getString("appointment_time"));
+                                consultation.setStatus("Scheduled"); // Default status
+                                consultation.setRemarks(response.optString("remarks", "Upcoming appointment"));
+
+                                consultationList.add(consultation);
                                 consultationAdapter.notifyDataSetChanged();
                                 showConsultationList();
+
+                                Toast.makeText(ConsultationLogsActivity.this,
+                                        "Showing your next upcoming appointment", Toast.LENGTH_SHORT).show();
                             } else {
-                                showEmptyState("No consultation records found");
+                                String message = response.optString("message", "No upcoming appointments within 30 minutes");
+                                showEmptyState(message);
                             }
+                        } else if (response.has("error")) {
+                            // Handle error response
+                            String errorMessage = response.getString("error");
+                            showEmptyState("Error: " + errorMessage);
                         } else {
-                            String message = response.getString("message");
-                            showEmptyState(message);
+                            // Unknown response format
+                            showEmptyState("Unexpected response format");
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        showEmptyState("Error loading consultation logs");
+                        showEmptyState("Error parsing response: " + e.getMessage());
                     }
                 });
             }
@@ -205,20 +220,6 @@ public class ConsultationLogsActivity extends AppCompatActivity {
                 });
             }
         });
-    }
-
-    private Consultation parseConsultationFromJson(JSONObject json) throws JSONException {
-        Consultation consultation = new Consultation();
-
-        consultation.setAppointmentId(json.getString("appointment_id"));
-        consultation.setDoctorName(json.getString("doctor_name"));
-        consultation.setDoctorSpecialty(json.getString("doctor_specialty"));
-        consultation.setAppointmentDate(json.getString("appointment_date"));
-        consultation.setAppointmentTime(json.getString("appointment_time"));
-        consultation.setStatus(json.getString("status"));
-        consultation.setRemarks(json.getString("remarks"));
-
-        return consultation;
     }
 
     private void showConsultationList() {
@@ -245,10 +246,10 @@ public class ConsultationLogsActivity extends AppCompatActivity {
         } else {
             String lowerCaseQuery = query.toLowerCase();
             for (Consultation consultation : consultationList) {
-                if (consultation.getDoctorName().toLowerCase().contains(lowerCaseQuery) ||
-                        consultation.getDoctorSpecialty().toLowerCase().contains(lowerCaseQuery) ||
-                        consultation.getAppointmentDate().toLowerCase().contains(lowerCaseQuery) ||
-                        consultation.getStatus().toLowerCase().contains(lowerCaseQuery)) {
+                if (consultation.getAppointmentDate().toLowerCase().contains(lowerCaseQuery) ||
+                        consultation.getAppointmentTime().toLowerCase().contains(lowerCaseQuery) ||
+                        consultation.getStatus().toLowerCase().contains(lowerCaseQuery) ||
+                        consultation.getRemarks().toLowerCase().contains(lowerCaseQuery)) {
                     filteredList.add(consultation);
                 }
             }
@@ -271,8 +272,6 @@ public class ConsultationLogsActivity extends AppCompatActivity {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_consultation_details, null);
 
         // Initialize views from the dialog
-        TextView txtDoctorName = dialogView.findViewById(R.id.txtDialogDoctorName);
-        TextView txtDoctorSpecialty = dialogView.findViewById(R.id.txtDialogDoctorSpecialty);
         TextView txtAppointmentDate = dialogView.findViewById(R.id.txtDialogAppointmentDate);
         TextView txtAppointmentTime = dialogView.findViewById(R.id.txtDialogAppointmentTime);
         TextView txtStatus = dialogView.findViewById(R.id.txtDialogStatus);
@@ -281,8 +280,6 @@ public class ConsultationLogsActivity extends AppCompatActivity {
         Button btnBack = dialogView.findViewById(R.id.btnBackConsultation);
 
         // Set consultation data
-        txtDoctorName.setText(consultation.getDoctorName());
-        txtDoctorSpecialty.setText(consultation.getDoctorSpecialty());
         txtAppointmentDate.setText(consultation.getAppointmentDate());
         txtAppointmentTime.setText(consultation.getAppointmentTime());
         txtStatus.setText(consultation.getStatus());
@@ -290,6 +287,9 @@ public class ConsultationLogsActivity extends AppCompatActivity {
 
         // Style the status based on its value
         styleStatusTextView(txtStatus, consultation.getStatus());
+
+        // For getSchedulesMeet.php, the appointment is always upcoming/joinable
+        btnJoin.setVisibility(View.VISIBLE);
 
         // Create the dialog
         MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(this)
@@ -346,17 +346,15 @@ public class ConsultationLogsActivity extends AppCompatActivity {
     }
 
     private void joinVideoConference(Consultation consultation) {
-        // Check if the consultation is joinable (scheduled or ongoing)
-        String status = consultation.getStatus().toLowerCase();
-        if (status.equals("scheduled") || status.equals("ongoing")) {
-            // Proceed to VideoConferenceActivity
-            Intent intent = new Intent(ConsultationLogsActivity.this, VideoConferenceActivity.class);
-            intent.putExtra("doctor_name", consultation.getDoctorName());
-            intent.putExtra("doctor_specialty", consultation.getDoctorSpecialty());
-            intent.putExtra("appointment_id", consultation.getAppointmentId());
-            startActivity(intent);
-        } else {
-            Toast.makeText(this, "This consultation cannot be joined. Status: " + consultation.getStatus(), Toast.LENGTH_LONG).show();
-        }
+        // Since getSchedulesMeet.php returns appointments within 30 minutes,
+        // we can assume they're joinable
+        Toast.makeText(this, "Joining video conference...", Toast.LENGTH_SHORT).show();
+
+        // Proceed to VideoConferenceActivity
+        Intent intent = new Intent(ConsultationLogsActivity.this, VideoConferenceActivity.class);
+        intent.putExtra("appointment_id", consultation.getAppointmentId());
+        intent.putExtra("appointment_date", consultation.getAppointmentDate());
+        intent.putExtra("appointment_time", consultation.getAppointmentTime());
+        startActivity(intent);
     }
 }

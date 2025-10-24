@@ -28,24 +28,6 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/tvDoctorName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Dr. Maria Santos"
-                    android:textColor="#333333"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvDoctorSpecialty"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="General Medicine"
-                    android:textColor="#666666"
-                    android:textSize="14sp"
-                    android:layout_marginTop="2dp" />
-
             </LinearLayout>
 
             <!-- Status Badge -->

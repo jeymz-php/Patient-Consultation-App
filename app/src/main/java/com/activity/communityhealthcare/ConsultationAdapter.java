@@ -63,21 +63,17 @@ public class ConsultationAdapter extends RecyclerView.Adapter<ConsultationAdapte
 
     static class ConsultationViewHolder extends RecyclerView.ViewHolder {
         private MaterialCardView cardConsultation;
-        private TextView tvDoctorName, tvDoctorSpecialty, tvDate, tvTime, tvStatus;
+        private TextView tvDate, tvTime, tvStatus;
 
         public ConsultationViewHolder(@NonNull View itemView) {
             super(itemView);
             cardConsultation = itemView.findViewById(R.id.cardConsultation);
-            tvDoctorName = itemView.findViewById(R.id.tvDoctorName);
-            tvDoctorSpecialty = itemView.findViewById(R.id.tvDoctorSpecialty);
             tvDate = itemView.findViewById(R.id.tvDate);
             tvTime = itemView.findViewById(R.id.tvTime);
             tvStatus = itemView.findViewById(R.id.tvStatus);
         }
 
         public void bind(Consultation consultation, OnConsultationClickListener listener) {
-            tvDoctorName.setText(consultation.getDoctorName());
-            tvDoctorSpecialty.setText(consultation.getDoctorSpecialty());
             tvDate.setText(consultation.getAppointmentDate());
             tvTime.setText(consultation.getAppointmentTime());
             tvStatus.setText(consultation.getStatus());
