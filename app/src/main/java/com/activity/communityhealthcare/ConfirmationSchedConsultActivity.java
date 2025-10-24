@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
@@ -17,13 +18,16 @@ import com.google.android.material.button.MaterialButton;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Map;
+
 public class ConfirmationSchedConsultActivity extends AppCompatActivity {
 
     private TextView tvDate, tvTime;
     private MaterialButton btnConfirm, btnBack;
 
     private String selectedDate, selectedTime, selectedDateDisplay;
-    private String patientId, trackingNumber;
+    private String trackingNumber;
+    private String patientId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,80 +81,109 @@ public class ConfirmationSchedConsultActivity extends AppCompatActivity {
 
     private void loadPatientData() {
         SharedPreferences patientPrefs = getSharedPreferences("PatientData", MODE_PRIVATE);
-        patientId = patientPrefs.getString("patient_id", "");
         trackingNumber = patientPrefs.getString("tracking_number", "");
+
+        // Debug: Print all PatientData entries
+        Map<String, ?> allEntries = patientPrefs.getAll();
+        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+            Log.d("PatientDataDebug", "Key: " + entry.getKey() + ", Value: " + entry.getValue());
+        }
+
+        // Get patient_id - ONLY as String since that's how it's stored
+        patientId = patientPrefs.getString("patient_id", "");
+
+        // If patient_id is "0", try to use resident_id instead
+        if (patientId.isEmpty() || patientId.equals("0")) {
+            Log.d("PatientDataDebug", "patient_id is 0, trying resident_id...");
+
+            // Try resident_id as String first
+            String residentId = patientPrefs.getString("resident_id", "");
+            if (!residentId.isEmpty() && !residentId.equals("0")) {
+                patientId = residentId;
+                Log.d("PatientDataDebug", "Using resident_id (string): " + patientId);
+            } else {
+                // If resident_id is stored as int, get it as int and convert to string
+                int residentIdInt = patientPrefs.getInt("resident_id", 0);
+                if (residentIdInt != 0) {
+                    patientId = String.valueOf(residentIdInt);
+                    Log.d("PatientDataDebug", "Using resident_id (int): " + patientId);
+                } else {
+                    Log.e("PatientDataDebug", "No valid patient_id or resident_id found!");
+                    patientId = "0"; // Fallback to prevent null
+                }
+            }
+        }
+
+        Log.d("PatientDataDebug", "Final patientId: " + patientId);
+        Log.d("PatientDataDebug", "Tracking Number: " + trackingNumber);
     }
 
     private void setupListeners() {
-        btnBack.setOnClickListener(v -> {
-            finish(); // go back to time selection
-        });
+        btnBack.setOnClickListener(v -> finish());
 
         btnConfirm.setOnClickListener(v -> {
-            // Show loading state
             btnConfirm.setEnabled(false);
             btnConfirm.setText("Scheduling...");
-
-            // Save appointment to database via API
             saveAppointmentToDatabase();
         });
     }
 
     private void saveAppointmentToDatabase() {
         ApiService apiService = new ApiService(this);
+        String dbDate = selectedDate;
 
-        // Convert display date back to database format if needed
-        String dbDate = selectedDate; // Already in yyyy-MM-dd format from DateSelectionActivity
+        // Debug what we're about to send
+        Log.d("AppointmentDebug", "Sending appointment with:");
+        Log.d("AppointmentDebug", "tracking_number: " + trackingNumber);
+        Log.d("AppointmentDebug", "appointment_date: " + dbDate);
+        Log.d("AppointmentDebug", "appointment_time: " + selectedTime);
 
-        // Use default doctor information since we removed doctor selection
-        String doctorName = "Community Healthcare Doctor";
-        String doctorSpecialty = "General Consultation";
-
-        apiService.saveAppointment(patientId, trackingNumber, doctorName, doctorSpecialty, dbDate, selectedTime,
+        apiService.saveAppointment(
+                trackingNumber,
+                dbDate,
+                selectedTime,
                 new ApiService.ApiResponseListener() {
                     @Override
                     public void onSuccess(JSONObject response) {
-                        runOnUiThread(() -> {
-                            try {
-                                if (response.getBoolean("success")) {
-                                    String appointmentId = response.getString("appointment_id");
-                                    Toast.makeText(ConfirmationSchedConsultActivity.this,
-                                            "Consultation scheduled successfully!", Toast.LENGTH_LONG).show();
+                        btnConfirm.setEnabled(true);
+                        btnConfirm.setText("Confirm Schedule");
 
-                                    // Clear the selected data from SharedPreferences
-                                    clearSelectionData();
-
-                                    // Proceed to dashboard
-                                    Intent intent = new Intent(ConfirmationSchedConsultActivity.this, DashboardActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                } else {
-                                    String errorMessage = response.getString("message");
-                                    Toast.makeText(ConfirmationSchedConsultActivity.this,
-                                            "Failed to schedule: " + errorMessage, Toast.LENGTH_LONG).show();
-                                    btnConfirm.setEnabled(true);
-                                    btnConfirm.setText("Confirm Schedule");
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
+                        try {
+                            Log.d("AppointmentDebug", "Response: " + response.toString());
+                            if (response.getString("status").equals("success")) {
                                 Toast.makeText(ConfirmationSchedConsultActivity.this,
-                                        "Error processing response", Toast.LENGTH_LONG).show();
-                                btnConfirm.setEnabled(true);
-                                btnConfirm.setText("Confirm Schedule");
+                                        "Appointment successfully saved!", Toast.LENGTH_SHORT).show();
+                                clearSelectionData();
+
+                                // ✅ Navigate to DashboardActivity after successful appointment
+                                Intent intent = new Intent(ConfirmationSchedConsultActivity.this, DashboardActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                startActivity(intent);
+                                finish(); // Close current activity
+
+                            } else {
+                                String errorMsg = response.getString("message");
+                                Toast.makeText(ConfirmationSchedConsultActivity.this,
+                                        "Error: " + errorMsg, Toast.LENGTH_SHORT).show();
+                                Log.e("AppointmentDebug", "Server error: " + errorMsg);
                             }
-                        });
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Toast.makeText(ConfirmationSchedConsultActivity.this,
+                                    "Error parsing response", Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                     @Override
                     public void onError(String error) {
-                        runOnUiThread(() -> {
-                            Toast.makeText(ConfirmationSchedConsultActivity.this,
-                                    "Network error: " + error, Toast.LENGTH_LONG).show();
-                            btnConfirm.setEnabled(true);
-                            btnConfirm.setText("Confirm Schedule");
-                        });
+                        btnConfirm.setEnabled(true);
+                        btnConfirm.setText("Confirm Schedule");
+                        Toast.makeText(ConfirmationSchedConsultActivity.this,
+                                "Network Error: " + error, Toast.LENGTH_SHORT).show();
+                        Log.e("AppointmentDebug", "Network error: " + error);
                     }
-                });
+                }
+        );
     }
 
     private void clearSelectionData() {

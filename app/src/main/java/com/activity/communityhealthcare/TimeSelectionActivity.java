@@ -102,70 +102,12 @@ public class TimeSelectionActivity extends AppCompatActivity {
     }
 
     private void checkAvailabilityAndSetupTimeSlots() {
-        // Show loading state
-        Toast.makeText(this, "Checking available time slots...", Toast.LENGTH_SHORT).show();
 
         // Generate all possible time slots first
         timeSlotList = generateTimeSlots();
 
         // Check availability for each time slot
-        checkAllTimeSlotsAvailability();
-    }
-
-    private void checkAllTimeSlotsAvailability() {
-        final int totalSlots = timeSlotList.size();
-        final int[] checkedSlots = {0};
-
-        for (TimeSlot slot : timeSlotList) {
-            checkTimeSlotAvailability(slot, new ApiService.ApiResponseListener() {
-                @Override
-                public void onSuccess(org.json.JSONObject response) {
-                    runOnUiThread(() -> {
-                        try {
-                            if (response.getBoolean("success") && response.getBoolean("available")) {
-                                // Time slot is available
-                                slot.setAvailable(true);
-                            } else {
-                                // Time slot is booked
-                                slot.setAvailable(false);
-                            }
-                        } catch (Exception e) {
-                            Log.e("TimeSelection", "Error parsing availability response", e);
-                            slot.setAvailable(false);
-                        }
-
-                        checkedSlots[0]++;
-                        if (checkedSlots[0] == totalSlots) {
-                            // All slots checked, setup the adapter
-                            setupTimeSlotsAdapter();
-                        }
-                    });
-                }
-
-                @Override
-                public void onError(String error) {
-                    runOnUiThread(() -> {
-                        Log.e("TimeSelection", "Availability check error: " + error);
-                        slot.setAvailable(false); // Mark as unavailable if error
-
-                        checkedSlots[0]++;
-                        if (checkedSlots[0] == totalSlots) {
-                            // All slots checked, setup the adapter
-                            setupTimeSlotsAdapter();
-                        }
-                    });
-                }
-            });
-        }
-    }
-
-    private void checkTimeSlotAvailability(TimeSlot timeSlot, ApiService.ApiResponseListener listener) {
-        ApiService apiService = new ApiService(this);
-
-        // Convert time to 24-hour format for the API
-        String time24h = convertTo24Hour(timeSlot.getTime());
-
-        apiService.checkAppointmentAvailability(selectedDate, time24h, listener);
+        setupTimeSlotsAdapter();
     }
 
     private void setupTimeSlotsAdapter() {
@@ -187,8 +129,6 @@ public class TimeSelectionActivity extends AppCompatActivity {
             public void onTimeSlotClick(TimeSlot timeSlot) {
                 if (timeSlot.isAvailable()) {
                     onTimeSlotSelected(timeSlot);
-                } else {
-                    Toast.makeText(TimeSelectionActivity.this, "This time slot is not available", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -197,8 +137,6 @@ public class TimeSelectionActivity extends AppCompatActivity {
         // Make sure RecyclerView is visible
         rvTimeSlots.setVisibility(View.VISIBLE);
 
-        // Show summary toast
-        Toast.makeText(this, availableCount + " time slots available", Toast.LENGTH_SHORT).show();
     }
 
     private List<TimeSlot> generateTimeSlots() {
@@ -228,18 +166,6 @@ public class TimeSelectionActivity extends AppCompatActivity {
         }
 
         return slots;
-    }
-
-    private String convertTo24Hour(String time12) {
-        try {
-            SimpleDateFormat displayFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
-            SimpleDateFormat dbFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-            java.util.Date date = displayFormat.parse(time12);
-            return dbFormat.format(date);
-        } catch (Exception e) {
-            Log.e("TimeSelection", "Error converting time format: " + time12, e);
-            return "08:00:00"; // Default fallback
-        }
     }
 
     private void onTimeSlotSelected(TimeSlot timeSlot) {

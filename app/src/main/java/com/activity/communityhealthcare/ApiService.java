@@ -120,39 +120,57 @@ public class ApiService {
         requestQueue.add(request);
     }
 
-    // ✅ 2. Add Schedule Consultation  → addSchedule.php
-    public void saveAppointment(String patientId, String trackingNumber,
-                                String doctorName, String doctorSpecialty,
+    // ✅ Fixed: Use StringRequest with POST parameters instead of JSON
+    public void saveAppointment(String trackingNumber,
                                 String appointmentDate, String appointmentTime,
                                 ApiResponseListener listener) {
-        try {
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("patient_id", patientId);
-            requestBody.put("tracking_number", trackingNumber);
-            requestBody.put("doctor_name", doctorName);
-            requestBody.put("doctor_specialty", doctorSpecialty);
-            requestBody.put("appointment_date", appointmentDate);
-            requestBody.put("appointment_time", appointmentTime);
+        StringRequest request = new StringRequest(
+                Request.Method.POST,
+                ApiConfig.SAVE_APPOINTMENT,
+                response -> {
+                    try {
+                        JSONObject jsonResponse = new JSONObject(response);
+                        Log.d("ApiService", "Appointment response: " + jsonResponse.toString());
+                        listener.onSuccess(jsonResponse);
+                    } catch (JSONException e) {
+                        listener.onError("Invalid JSON: " + e.getMessage());
+                    }
+                },
+                error -> {
+                    String errorMessage = "Network error";
+                    if (error.getMessage() != null) {
+                        errorMessage = error.getMessage();
+                    }
+                    listener.onError(errorMessage);
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("tracking_number", trackingNumber);
+                params.put("appointment_date", appointmentDate);
+                params.put("appointment_time", appointmentTime);
 
-            Log.d("ApiService", "Saving appointment: " + requestBody.toString());
+                Log.d("ApiService", "Saving appointment params: " + params.toString());
+                return params;
+            }
 
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                    Request.Method.POST,
-                    ApiConfig.SAVE_APPOINTMENT,
-                    requestBody,
-                    response -> {
-                        Log.d("ApiService", "Appointment response: " + response.toString());
-                        listener.onSuccess(response);
-                    },
-                    error -> handleError("saveAppointment", error, listener)
-            );
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/x-www-form-urlencoded");
+                headers.put("Accept", "application/json");
+                return headers;
+            }
+        };
 
-            applyRetryPolicy(jsonObjectRequest);
-            requestQueue.add(jsonObjectRequest);
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                30000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
 
-        } catch (JSONException e) {
-            listener.onError("JSON error: " + e.getMessage());
-        }
+        requestQueue.add(request);
     }
 
     // ✅ 3. Register/Add Patient → addPatient.php

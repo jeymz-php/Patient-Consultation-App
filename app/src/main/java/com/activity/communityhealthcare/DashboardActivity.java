@@ -242,12 +242,30 @@ public class DashboardActivity extends AppCompatActivity {
             public void onSuccess(JSONObject response) {
                 runOnUiThread(() -> {
                     try {
+                        Log.d("API_DEBUG", "Full API Response: " + response.toString(2)); // Pretty print JSON
                         if ((response.has("success") && response.getBoolean("success")) ||
                                 (response.has("exists") && response.getBoolean("exists"))) {
 
                             JSONObject patientDataJson = response.has("patient_data")
                                     ? response.getJSONObject("patient_data")
                                     : response.getJSONObject("patient");
+
+                            // Debug the patient data JSON
+                            Log.d("API_DEBUG", "Patient Data JSON: " + patientDataJson.toString(2));
+
+                            // Check what patient_id field exists
+                            if (patientDataJson.has("patient_id")) {
+                                Log.d("API_DEBUG", "patient_id found: " + patientDataJson.get("patient_id"));
+                            } else {
+                                Log.d("API_DEBUG", "patient_id NOT found in response");
+                                // Check for alternative field names
+                                String[] possibleIdFields = {"id", "user_id", "patientId", "resident_id"};
+                                for (String field : possibleIdFields) {
+                                    if (patientDataJson.has(field)) {
+                                        Log.d("API_DEBUG", "Found alternative ID field '" + field + "': " + patientDataJson.get(field));
+                                    }
+                                }
+                            }
 
                             PatientData patientData = parsePatientDataFromJson(patientDataJson);
                             savePatientDataToSharedPreferences(patientData);
@@ -300,6 +318,20 @@ public class DashboardActivity extends AppCompatActivity {
     private PatientData parsePatientDataFromJson(JSONObject json) throws JSONException {
         PatientData patientData = new PatientData();
 
+        // Try different possible field names for patient_id
+        if (json.has("patient_id")) {
+            patientData.setPatientId(json.optInt("patient_id", 0));
+        } else if (json.has("id")) {
+            patientData.setPatientId(json.optInt("id", 0));
+        } else if (json.has("user_id")) {
+            patientData.setPatientId(json.optInt("user_id", 0));
+        } else {
+            patientData.setPatientId(json.optInt("patient_id", 0)); // default to 0 if not found
+        }
+
+        // Log what patient_id we found
+        Log.d("PARSE_DEBUG", "Final patient_id: " + patientData.getPatientId());
+
         patientData.setFirstName(json.optString("first_name", ""));
         patientData.setLastName(json.optString("last_name", ""));
         patientData.setDateOfBirth(json.optString("date_of_birth", ""));
@@ -308,16 +340,14 @@ public class DashboardActivity extends AppCompatActivity {
         patientData.setEmail(json.optString("email", ""));
         patientData.setAddress(json.optString("address", ""));
         patientData.setCivilStatus(json.optString("civil_status", ""));
-        patientData.setBarangay(json.optString("barangay_name", "")); // ✅ corrected key
+        patientData.setBarangay(json.optString("barangay_name", ""));
         patientData.setTrackingNumber(json.optString("tracking_number", ""));
         patientData.setResidentId(json.optInt("resident_id", 0));
 
-        // ⚠️ These fields don’t exist in PHP response — protect them
         patientData.setEmergencyFirstName(json.optString("emergency_first_name", ""));
         patientData.setEmergencyLastName(json.optString("emergency_last_name", ""));
         patientData.setEmergencyRelationship(json.optString("emergency_relationship", ""));
         patientData.setEmergencyContactNumber(json.optString("emergency_contact_number", ""));
-        patientData.setPatientId(json.optInt("patient_id", 0)); // might be missing — use 0 default
 
         return patientData;
     }
