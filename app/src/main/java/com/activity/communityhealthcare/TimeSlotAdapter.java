@@ -16,6 +16,7 @@ public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.TimeSl
     private List<TimeSlot> timeSlotList;
     private OnTimeSlotClickListener listener;
     private int selectedPosition = -1;
+    private String selectedTime = ""; // Added field for string-based selection
 
     public interface OnTimeSlotClickListener {
         void onTimeSlotClick(TimeSlot timeSlot);
@@ -50,6 +51,20 @@ public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.TimeSl
         notifyDataSetChanged();
     }
 
+    // Added method for string-based selection
+    public void setSelectedTime(String selectedTime) {
+        this.selectedTime = selectedTime;
+        // Find the position for this time
+        selectedPosition = -1;
+        for (int i = 0; i < timeSlotList.size(); i++) {
+            if (timeSlotList.get(i).getTime().equals(selectedTime)) {
+                selectedPosition = i;
+                break;
+            }
+        }
+        notifyDataSetChanged();
+    }
+
     class TimeSlotViewHolder extends RecyclerView.ViewHolder {
         private CardView cardView;
         private TextView tvTime;
@@ -78,7 +93,11 @@ public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.TimeSl
                     itemView.getContext().getResources().getDisplayMetrics()
             );
 
-            if (position == selectedPosition) {
+            // Check both position-based and string-based selection
+            boolean isSelected = (position == selectedPosition) ||
+                    timeSlot.getTime().equals(selectedTime);
+
+            if (isSelected) {
                 // Selected state - Orange background, white text
                 cardView.setCardBackgroundColor(Color.parseColor("#E87C00"));
                 tvTime.setTextColor(Color.WHITE);
@@ -91,16 +110,19 @@ public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.TimeSl
             }
 
             itemView.setOnClickListener(v -> {
-                int previousPosition = selectedPosition;
-                selectedPosition = position;
+                if (timeSlot.isAvailable()) {
+                    int previousPosition = selectedPosition;
+                    selectedPosition = position;
+                    selectedTime = timeSlot.getTime(); // Update string selection
 
-                // Notify changes
-                if (previousPosition != -1) {
-                    notifyItemChanged(previousPosition);
+                    // Notify changes
+                    if (previousPosition != -1) {
+                        notifyItemChanged(previousPosition);
+                    }
+                    notifyItemChanged(selectedPosition);
+
+                    listener.onTimeSlotClick(timeSlot);
                 }
-                notifyItemChanged(selectedPosition);
-
-                listener.onTimeSlotClick(timeSlot);
             });
         }
     }

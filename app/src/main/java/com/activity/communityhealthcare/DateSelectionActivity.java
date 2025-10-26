@@ -16,6 +16,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.button.MaterialButton;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,9 +30,12 @@ public class DateSelectionActivity extends AppCompatActivity {
     private RecyclerView rvCalendar;
     private TextView tvCurrentMonth;
     private ImageButton btnPrevMonth, btnNextMonth;
+    private MaterialButton btnConfirmDate;
     private CalendarAdapter calendarAdapter;
     private List<CalendarDate> calendarDateList;
     private Calendar currentCalendar;
+    private String selectedDate = ""; // Store selected date in yyyy-MM-dd format
+    private String selectedDateDisplay = ""; // Store selected date for display
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +52,7 @@ public class DateSelectionActivity extends AppCompatActivity {
         initializeViews();
         setupCalendar();
         setupMonthNavigation();
+        setupConfirmButton();
     }
 
     private void setSystemBars() {
@@ -96,9 +103,14 @@ public class DateSelectionActivity extends AppCompatActivity {
         tvCurrentMonth = findViewById(R.id.tvCurrentMonth);
         btnPrevMonth = findViewById(R.id.btnPrevMonth);
         btnNextMonth = findViewById(R.id.btnNextMonth);
+        btnConfirmDate = findViewById(R.id.btnConfirmDate);
 
         // Initialize calendar to current month
         currentCalendar = Calendar.getInstance();
+
+        // Initially disable confirm button until a date is selected
+        btnConfirmDate.setEnabled(false);
+        btnConfirmDate.setAlpha(0.5f);
     }
 
     private void setupCalendar() {
@@ -130,6 +142,31 @@ public class DateSelectionActivity extends AppCompatActivity {
         btnNextMonth.setOnClickListener(v -> {
             currentCalendar.add(Calendar.MONTH, 1);
             updateCalendar();
+        });
+    }
+
+    private void setupConfirmButton() {
+        btnConfirmDate.setOnClickListener(v -> {
+            if (selectedDate.isEmpty()) {
+                Toast.makeText(this, "Please select a date first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Save selected date to SharedPreferences
+            SharedPreferences prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("selected_date", selectedDate);
+            editor.putString("selected_date_display", selectedDateDisplay);
+            editor.apply();
+
+            Toast.makeText(this, "Date confirmed: " + selectedDateDisplay, Toast.LENGTH_SHORT).show();
+
+            // Proceed to time selection
+            Intent intent = new Intent(DateSelectionActivity.this, TimeSelectionActivity.class);
+            startActivity(intent);
+
+            // Optional: close this activity
+            // finish();
         });
     }
 
@@ -170,9 +207,9 @@ public class DateSelectionActivity extends AppCompatActivity {
             String dayNumber = String.valueOf(day);
             String dayName = new SimpleDateFormat("EEE", Locale.getDefault()).format(calendar.getTime());
 
-            // Check if date is selectable (not in past and not too far in future)
-            boolean isSelectable = !calendar.before(today) &&
-                    !isDateTooFarInFuture(calendar);
+            // MODIFIED: Allow today's date to be selectable
+            // Check if date is selectable (today or future, but not too far in future)
+            boolean isSelectable = !calendar.before(today) || isSameDay(calendar, today);
             boolean isToday = isSameDay(calendar, today);
 
             dates.add(new CalendarDate(dayNumber, dayName, isSelectable, isToday));
@@ -194,25 +231,21 @@ public class DateSelectionActivity extends AppCompatActivity {
     }
 
     private void onDateSelected(CalendarDate calendarDate) {
-        // Save selected date
-        Calendar selectedDate = (Calendar) currentCalendar.clone();
-        selectedDate.set(Calendar.DAY_OF_MONTH, Integer.parseInt(calendarDate.getDayNumber()));
+        // Create selected date
+        Calendar selectedCalendar = (Calendar) currentCalendar.clone();
+        selectedCalendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(calendarDate.getDayNumber()));
 
+        // Format dates
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        String selectedDateStr = dateFormat.format(selectedDate.getTime());
+        selectedDate = dateFormat.format(selectedCalendar.getTime());
 
         SimpleDateFormat displayFormat = new SimpleDateFormat("EEEE, MMMM d, yyyy", Locale.getDefault());
-        String displayDateStr = displayFormat.format(selectedDate.getTime());
+        selectedDateDisplay = displayFormat.format(selectedCalendar.getTime());
 
-        SharedPreferences prefs = getSharedPreferences("AppPreferences", MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("selected_date", selectedDateStr);
-        editor.putString("selected_date_display", displayDateStr);
-        editor.apply();
+        // Enable confirm button
+        btnConfirmDate.setEnabled(true);
+        btnConfirmDate.setAlpha(1.0f);
 
-        Toast.makeText(this, "Date selected: " + displayDateStr, Toast.LENGTH_SHORT).show();
-
-        // Proceed to time selection
-        startActivity(new Intent(DateSelectionActivity.this, TimeSelectionActivity.class));
+        Toast.makeText(this, "Date selected: " + selectedDateDisplay, Toast.LENGTH_SHORT).show();
     }
 }

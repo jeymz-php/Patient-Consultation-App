@@ -66,7 +66,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:paddingBottom="80dp"> <!-- Extra padding for navigation bar -->
+        android:paddingBottom="80dp">
 
         <!-- Time Slots Header -->
         <TextView
@@ -79,6 +79,192 @@
             android:gravity="center"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="16dp" />
+
+        <!-- Custom Time Selection -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@android:color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Custom Time"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <!-- Hour Input -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginEnd="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Hour"
+                            android:textColor="#666666"
+                            android:textSize="12sp"
+                            android:layout_marginBottom="4dp" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:boxCornerRadiusTopStart="8dp"
+                            app:boxCornerRadiusTopEnd="8dp"
+                            app:boxCornerRadiusBottomStart="8dp"
+                            app:boxCornerRadiusBottomEnd="8dp"
+                            app:boxBackgroundColor="#F5F5F5"
+                            app:boxStrokeColor="#DDDDDD">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etCustomHour"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="8"
+                                android:inputType="number"
+                                android:maxLength="2"
+                                android:textSize="14sp"
+                                android:padding="12dp" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </LinearLayout>
+
+                    <!-- Minute Input -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Minute"
+                            android:textColor="#666666"
+                            android:textSize="12sp"
+                            android:layout_marginBottom="4dp" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:boxCornerRadiusTopStart="8dp"
+                            app:boxCornerRadiusTopEnd="8dp"
+                            app:boxCornerRadiusBottomStart="8dp"
+                            app:boxCornerRadiusBottomEnd="8dp"
+                            app:boxBackgroundColor="#F5F5F5"
+                            app:boxStrokeColor="#DDDDDD">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etCustomMinute"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="00"
+                                android:inputType="number"
+                                android:maxLength="2"
+                                android:textSize="14sp"
+                                android:padding="12dp" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </LinearLayout>
+
+                    <!-- AM/PM Toggle - UPDATED -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Period"
+                            android:textColor="#666666"
+                            android:textSize="12sp"
+                            android:layout_marginBottom="4dp" />
+
+                        <com.google.android.material.button.MaterialButtonToggleGroup
+                            android:id="@+id/togglePeriod"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:singleSelection="true"
+                            app:selectionRequired="true"
+                            android:layout_marginTop="4dp">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnAM"
+                                android:layout_width="0dp"
+                                android:layout_height="40dp"
+                                android:layout_weight="1"
+                                android:text="AM"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                app:cornerRadius="8dp"
+                                app:strokeColor="#DDDDDD"
+                                app:strokeWidth="1dp"
+                                app:backgroundTint="@android:color/white"
+                                android:textColor="#666666" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnPM"
+                                android:layout_width="0dp"
+                                android:layout_height="40dp"
+                                android:layout_weight="1"
+                                android:text="PM"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                app:cornerRadius="8dp"
+                                app:strokeColor="#DDDDDD"
+                                app:strokeWidth="1dp"
+                                app:backgroundTint="@android:color/white"
+                                android:textColor="#666666" />
+
+                        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- Use Custom Time Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnUseCustomTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:text="Use Custom Time"
+                    android:textSize="14sp"
+                    android:layout_marginTop="12dp"
+                    app:backgroundTint="#E87C00"
+                    app:cornerRadius="8dp" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Lunch Break Notice -->
         <com.google.android.material.card.MaterialCardView
