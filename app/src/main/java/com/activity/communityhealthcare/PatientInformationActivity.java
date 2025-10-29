@@ -22,14 +22,21 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class PatientInformationActivity extends AppCompatActivity {
 
@@ -50,8 +57,11 @@ public class PatientInformationActivity extends AppCompatActivity {
     // Dropdown options
     private final String[] sexOptions = {"Male", "Female", "Other"};
     private final String[] maritalStatusOptions = {"Single", "Married", "Divorced", "Widowed"};
-    private final String[] barangayOptions = {"Barangay 100", "Barangay 96", "Barangay 97", "Barangay 98"};
     private final String[] relationshipOptions = {"Spouse", "Parent", "Child", "Sibling", "Relative", "Friend", "Other"};
+
+    // Dynamic barangay data
+    private List<Barangay> barangayList = new ArrayList<>();
+    private Map<String, Integer> barangayMap = new HashMap<>(); // Map barangay name to ID
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +90,9 @@ public class PatientInformationActivity extends AppCompatActivity {
         setupDropdowns();
         setupDatePicker();
 
+        // Load barangays from API first
+        loadBarangaysFromAPI();
+
         // Check if we're in edit mode FIRST (before setting up email autocomplete)
         checkEditMode();
 
@@ -92,6 +105,101 @@ public class PatientInformationActivity extends AppCompatActivity {
         isActivityReady = true;
 
         Log.d(TAG, "Activity setup complete");
+    }
+
+    // Barangay data class
+    private static class Barangay {
+        int id;
+        String name;
+
+        Barangay(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    private void loadBarangaysFromAPI() {
+        String url = "https://communityhealthcare.bsitfoura.com/api/getBarangay.php";
+        Log.d(TAG, "Loading barangays from: " + url);
+
+        StringRequest request = new StringRequest(Request.Method.GET, url,
+                response -> {
+                    Log.d(TAG, "Barangays API response: " + response);
+                    try {
+                        JSONObject jsonResponse = new JSONObject(response);
+                        if (jsonResponse.getBoolean("success")) {
+                            JSONArray barangaysArray = jsonResponse.getJSONArray("barangays");
+                            barangayList.clear();
+                            barangayMap.clear();
+
+                            for (int i = 0; i < barangaysArray.length(); i++) {
+                                JSONObject barangayObj = barangaysArray.getJSONObject(i);
+                                int id = barangayObj.getInt("barangay_id");
+                                String name = barangayObj.getString("barangay_name");
+
+                                barangayList.add(new Barangay(id, name));
+                                barangayMap.put(name, id);
+                            }
+
+                            // Update the dropdown adapter
+                            runOnUiThread(() -> {
+                                ArrayAdapter<Barangay> adapter = new ArrayAdapter<>(
+                                        PatientInformationActivity.this,
+                                        android.R.layout.simple_dropdown_item_1line,
+                                        barangayList
+                                );
+                                autoCompleteBarangay.setAdapter(adapter);
+                                Log.d(TAG, "Loaded " + barangayList.size() + " barangays");
+                            });
+
+                        } else {
+                            Log.e(TAG, "Failed to load barangays: " + jsonResponse.getString("message"));
+                            showDefaultBarangays();
+                        }
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Error parsing barangays JSON: ", e);
+                        showDefaultBarangays();
+                    }
+                },
+                error -> {
+                    Log.e(TAG, "Network error loading barangays: ", error);
+                    showDefaultBarangays();
+                });
+
+        com.android.volley.RequestQueue queue = com.android.volley.toolbox.Volley.newRequestQueue(this);
+        queue.add(request);
+    }
+
+    private void showDefaultBarangays() {
+        // Fallback to default barangays if API fails
+        runOnUiThread(() -> {
+            List<Barangay> defaultBarangays = Arrays.asList(
+                    new Barangay(1, "Barangay 100"),
+                    new Barangay(2, "Barangay 96"),
+                    new Barangay(3, "Barangay 98"),
+                    new Barangay(4, "Barangay 97")
+            );
+
+            barangayList.clear();
+            barangayList.addAll(defaultBarangays);
+
+            for (Barangay barangay : defaultBarangays) {
+                barangayMap.put(barangay.name, barangay.id);
+            }
+
+            ArrayAdapter<Barangay> adapter = new ArrayAdapter<>(
+                    PatientInformationActivity.this,
+                    android.R.layout.simple_dropdown_item_1line,
+                    barangayList
+            );
+            autoCompleteBarangay.setAdapter(adapter);
+            Log.d(TAG, "Using default barangays due to API failure");
+        });
     }
 
     private void checkEditMode() {
@@ -134,16 +242,6 @@ public class PatientInformationActivity extends AppCompatActivity {
         setFieldReadOnly(autoCompleteBarangay);
         setFieldReadOnly(etCity);
         setFieldReadOnly(etStateProvince);
-
-        // Keep these fields editable:
-        // - etHeight (editable)
-        // - etWeight (editable)
-        // - etContactNumber (editable)
-        // - etPatientAddress (editable)
-        // - etEmergencyFirstName (editable)
-        // - etEmergencyLastName (editable)
-        // - autoCompleteRelationship (editable)
-        // - etEmergencyContactNumber (editable)
 
         Log.d(TAG, "Edit mode restrictions applied");
     }
@@ -287,8 +385,10 @@ public class PatientInformationActivity extends AppCompatActivity {
         Log.d(TAG, "Setting up dropdowns...");
         autoCompleteSex.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, sexOptions));
         autoCompleteMaritalStatus.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, maritalStatusOptions));
-        autoCompleteBarangay.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, barangayOptions));
         autoCompleteRelationship.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, relationshipOptions));
+
+        // Barangay dropdown will be set after loading from API
+        autoCompleteBarangay.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, new ArrayList<>()));
     }
 
     private void setupDatePicker() {
@@ -393,39 +493,97 @@ public class PatientInformationActivity extends AppCompatActivity {
         });
     }
 
+    // Generate tracking number: First Initial + Last Initial + DD + MM + YY
+    private String generateTrackingNumber() {
+        try {
+            String firstName = etFirstName.getText().toString().trim();
+            String lastName = etLastName.getText().toString().trim();
+            String dateOfBirth = etDateOfBirth.getText().toString().trim();
+
+            // Get first initial (uppercase)
+            String firstInitial = firstName.isEmpty() ? "X" :
+                    firstName.substring(0, 1).toUpperCase();
+
+            // Get last initial (uppercase)
+            String lastInitial = lastName.isEmpty() ? "X" :
+                    lastName.substring(0, 1).toUpperCase();
+
+            // Parse date components
+            String day = "01";
+            String month = "01";
+            String year = "00";
+
+            if (!dateOfBirth.isEmpty()) {
+                try {
+                    // Handle both MM/dd/yyyy and yyyy-MM-dd formats
+                    if (dateOfBirth.contains("/")) {
+                        // Format: MM/dd/yyyy
+                        String[] dateParts = dateOfBirth.split("/");
+                        if (dateParts.length >= 3) {
+                            month = String.format("%02d", Integer.parseInt(dateParts[0]));
+                            day = String.format("%02d", Integer.parseInt(dateParts[1]));
+                            year = dateParts[2].length() >= 2 ?
+                                    dateParts[2].substring(dateParts[2].length() - 2) : "00";
+                        }
+                    } else if (dateOfBirth.contains("-")) {
+                        // Format: yyyy-MM-dd
+                        String[] dateParts = dateOfBirth.split("-");
+                        if (dateParts.length >= 3) {
+                            year = dateParts[0].length() >= 2 ?
+                                    dateParts[0].substring(dateParts[0].length() - 2) : "00";
+                            month = String.format("%02d", Integer.parseInt(dateParts[1]));
+                            day = String.format("%02d", Integer.parseInt(dateParts[2]));
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error parsing date for tracking number: " + dateOfBirth, e);
+                    // Use defaults if parsing fails
+                }
+            }
+
+            String trackingNumber = firstInitial + lastInitial + day + month + year;
+            Log.d(TAG, "Generated tracking number: " + trackingNumber +
+                    " from First: " + firstName + ", Last: " + lastName + ", DOB: " + dateOfBirth);
+
+            return trackingNumber;
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error generating tracking number, using fallback", e);
+            // Fallback: use random number if generation fails
+            Random random = new Random();
+            int randomNum = random.nextInt(900000) + 100000;
+            return "TRK" + randomNum;
+        }
+    }
+
+    // Get barangay ID based on selected barangay name
+    private int getBarangayId(String barangayName) {
+        Integer barangayId = barangayMap.get(barangayName);
+        if (barangayId != null) {
+            return barangayId;
+        }
+        Log.e(TAG, "Barangay not found in map: " + barangayName);
+
+        // Try to find by object in the list
+        for (Barangay barangay : barangayList) {
+            if (barangay.name.equals(barangayName)) {
+                return barangay.id;
+            }
+        }
+
+        return 1; // Default barangay ID
+    }
+
     // Update patient data method
     private void updatePatientData() {
         String url = "https://communityhealthcare.bsitfoura.com/api/update_patient.php";
         Log.d(TAG, "Updating patient data: " + url);
 
         try {
-            JSONObject data = new JSONObject();
-            // Add patient identification
-            data.put("patient_id", patientId);
-            data.put("tracking_number", trackingNumber);
+            String barangayName = autoCompleteBarangay.getText().toString().trim();
+            int barangayId = getBarangayId(barangayName);
 
-            // Add ALL patient data (server will handle which fields to update)
-            data.put("first_name", etFirstName.getText().toString().trim());
-            data.put("last_name", etLastName.getText().toString().trim());
-            data.put("date_of_birth", convertDateToMySQL(etDateOfBirth.getText().toString().trim()));
-            data.put("sex", autoCompleteSex.getText().toString().trim());
-            data.put("height", etHeight.getText().toString().trim());
-            data.put("weight", etWeight.getText().toString().trim());
-            data.put("marital_status", autoCompleteMaritalStatus.getText().toString().trim());
-            data.put("contact_number", etContactNumber.getText().toString().trim());
-            data.put("email", autoCompleteEmail.getText().toString().trim());
-            data.put("barangay", autoCompleteBarangay.getText().toString().trim());
-            data.put("address", etPatientAddress.getText().toString().trim());
-            data.put("city", etCity.getText().toString().trim());
-            data.put("state_province", etStateProvince.getText().toString().trim());
-            data.put("emergency_first_name", etEmergencyFirstName.getText().toString().trim());
-            data.put("emergency_last_name", etEmergencyLastName.getText().toString().trim());
-            data.put("emergency_relationship", autoCompleteRelationship.getText().toString().trim());
-            data.put("emergency_contact_number", etEmergencyContactNumber.getText().toString().trim());
-
-            Log.d(TAG, "Update data: " + data.toString());
-
-            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, data,
+            StringRequest request = new StringRequest(Request.Method.POST, url,
                     response -> {
                         Log.d(TAG, "Update response: " + response);
                         isSubmitting = false;
@@ -433,12 +591,13 @@ public class PatientInformationActivity extends AppCompatActivity {
                         btnSubmit.setText("Update Information");
 
                         try {
-                            if (response.getBoolean("success")) {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            if (jsonResponse.getBoolean("success")) {
                                 // Update local SharedPreferences
                                 savePatientData();
 
                                 Log.d(TAG, "Patient information updated successfully!");
-                                Toast.makeText(this, "Information updated successfully!", Toast.LENGTH_LONG).show();
+                                Toast.makeText(PatientInformationActivity.this, "Information updated successfully!", Toast.LENGTH_LONG).show();
 
                                 // Go back to profile
                                 Intent intent = new Intent(PatientInformationActivity.this, PatientProfileActivity.class);
@@ -446,46 +605,63 @@ public class PatientInformationActivity extends AppCompatActivity {
                                 startActivity(intent);
                                 finish();
                             } else {
-                                String errorMessage = response.getString("message");
+                                String errorMessage = jsonResponse.getString("message");
                                 Log.e(TAG, "Update failed: " + errorMessage);
-                                Toast.makeText(this, "Update failed: " + errorMessage, Toast.LENGTH_LONG).show();
+                                Toast.makeText(PatientInformationActivity.this, "Update failed: " + errorMessage, Toast.LENGTH_LONG).show();
                             }
                         } catch (Exception e) {
                             Log.e(TAG, "Error parsing update response: ", e);
-                            Toast.makeText(this, "Error updating information", Toast.LENGTH_LONG).show();
+                            Toast.makeText(PatientInformationActivity.this, "Error updating information", Toast.LENGTH_LONG).show();
                         }
                     },
                     error -> {
                         Log.e(TAG, "Network error during update: ", error);
-
-                        // Enhanced error handling
-                        if (error.networkResponse != null) {
-                            int statusCode = error.networkResponse.statusCode;
-                            String errorData = "No error data";
-
-                            if (error.networkResponse.data != null) {
-                                errorData = new String(error.networkResponse.data);
-                                Log.e(TAG, "Server error response (" + statusCode + "): " + errorData);
-                            }
-
-                            if (statusCode == 500) {
-                                Toast.makeText(this, "Server error (500). Please contact administrator.", Toast.LENGTH_LONG).show();
-                            } else if (statusCode == 404) {
-                                Toast.makeText(this, "Server endpoint not found (404)", Toast.LENGTH_LONG).show();
-                            } else {
-                                Toast.makeText(this, "Server error: " + statusCode, Toast.LENGTH_LONG).show();
-                            }
-                        } else {
-                            Toast.makeText(this, "Network error: " + error.getMessage(), Toast.LENGTH_LONG).show();
-                        }
-
                         isSubmitting = false;
                         btnSubmit.setEnabled(true);
                         btnSubmit.setText("Update Information");
-                    });
+                        Toast.makeText(PatientInformationActivity.this, "Network error during update", Toast.LENGTH_LONG).show();
+                    }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<>();
+                    // Add patient identification
+                    params.put("patient_id", patientId);
+                    params.put("tracking_number", trackingNumber);
+
+                    // Add ALL patient data
+                    params.put("first_name", etFirstName.getText().toString().trim());
+                    params.put("last_name", etLastName.getText().toString().trim());
+                    params.put("date_of_birth", convertDateToMySQL(etDateOfBirth.getText().toString().trim()));
+                    params.put("gender", autoCompleteSex.getText().toString().trim());
+                    params.put("height", etHeight.getText().toString().trim());
+                    params.put("weight", etWeight.getText().toString().trim());
+                    params.put("civil_status", autoCompleteMaritalStatus.getText().toString().trim());
+                    params.put("contact_number", etContactNumber.getText().toString().trim());
+                    params.put("email", autoCompleteEmail.getText().toString().trim());
+                    params.put("barangay_id", String.valueOf(barangayId));
+                    params.put("address", etPatientAddress.getText().toString().trim());
+                    params.put("city", etCity.getText().toString().trim());
+                    params.put("state_province", etStateProvince.getText().toString().trim());
+                    params.put("emergency_fname", etEmergencyFirstName.getText().toString().trim());
+                    params.put("emergency_lname", etEmergencyLastName.getText().toString().trim());
+                    params.put("emergency_relationship", autoCompleteRelationship.getText().toString().trim());
+                    params.put("emergency_connum", etEmergencyContactNumber.getText().toString().trim());
+                    params.put("medication_list", "");
+
+                    Log.d(TAG, "Update params: " + params.toString());
+                    return params;
+                }
+
+                @Override
+                public Map<String, String> getHeaders() {
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("Content-Type", "application/x-www-form-urlencoded");
+                    return headers;
+                }
+            };
 
             request.setRetryPolicy(new com.android.volley.DefaultRetryPolicy(
-                    30000, // 30 seconds timeout
+                    30000,
                     com.android.volley.DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                     com.android.volley.DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
             ));
@@ -507,28 +683,11 @@ public class PatientInformationActivity extends AppCompatActivity {
         Log.d(TAG, "Submitting to: " + url);
 
         try {
-            JSONObject data = new JSONObject();
-            data.put("first_name", etFirstName.getText().toString().trim());
-            data.put("last_name", etLastName.getText().toString().trim());
-            data.put("date_of_birth", convertDateToMySQL(etDateOfBirth.getText().toString().trim()));
-            data.put("sex", autoCompleteSex.getText().toString().trim());
-            data.put("height", etHeight.getText().toString().trim());
-            data.put("weight", etWeight.getText().toString().trim());
-            data.put("marital_status", autoCompleteMaritalStatus.getText().toString().trim());
-            data.put("contact_number", etContactNumber.getText().toString().trim());
-            data.put("email", autoCompleteEmail.getText().toString().trim());
-            data.put("barangay", autoCompleteBarangay.getText().toString().trim());
-            data.put("address", etPatientAddress.getText().toString().trim());
-            data.put("city", etCity.getText().toString().trim());
-            data.put("state_province", etStateProvince.getText().toString().trim());
-            data.put("emergency_first_name", etEmergencyFirstName.getText().toString().trim());
-            data.put("emergency_last_name", etEmergencyLastName.getText().toString().trim());
-            data.put("emergency_relationship", autoCompleteRelationship.getText().toString().trim());
-            data.put("emergency_contact_number", etEmergencyContactNumber.getText().toString().trim());
+            String trackingNum = generateTrackingNumber();
+            String barangayName = autoCompleteBarangay.getText().toString().trim();
+            int barangayId = getBarangayId(barangayName);
 
-            Log.d(TAG, "Data to send: " + data.toString());
-
-            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, data,
+            StringRequest request = new StringRequest(Request.Method.POST, url,
                     response -> {
                         Log.d(TAG, "Server response: " + response);
                         isSubmitting = false;
@@ -536,8 +695,9 @@ public class PatientInformationActivity extends AppCompatActivity {
                         btnSubmit.setText("Submit");
 
                         try {
-                            if (response.getString("status").equals("success")) {
-                                String trackingNumber = response.getString("tracking_number");
+                            JSONObject jsonResponse = new JSONObject(response);
+                            if (jsonResponse.getString("status").equals("success")) {
+                                String trackingNumber = jsonResponse.getString("tracking_number");
                                 Log.d(TAG, "Registration success! Tracking #: " + trackingNumber);
 
                                 SharedPreferences prefs = getSharedPreferences("PatientData", MODE_PRIVATE);
@@ -548,12 +708,13 @@ public class PatientInformationActivity extends AppCompatActivity {
                                 startActivity(intent);
                                 finish();
                             } else {
-                                Log.e(TAG, "Server returned error: " + response.getString("message"));
-                                Toast.makeText(this, response.getString("message"), Toast.LENGTH_LONG).show();
+                                String errorMessage = jsonResponse.getString("message");
+                                Log.e(TAG, "Server returned error: " + errorMessage);
+                                Toast.makeText(PatientInformationActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                             }
                         } catch (Exception e) {
                             Log.e(TAG, "Error parsing server response: ", e);
-                            Toast.makeText(this, "Error parsing server response.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(PatientInformationActivity.this, "Error parsing server response.", Toast.LENGTH_LONG).show();
                         }
                     },
                     error -> {
@@ -561,8 +722,43 @@ public class PatientInformationActivity extends AppCompatActivity {
                         isSubmitting = false;
                         btnSubmit.setEnabled(true);
                         btnSubmit.setText("Submit");
-                        Toast.makeText(this, "Failed to connect to server.", Toast.LENGTH_LONG).show();
-                    });
+                        Toast.makeText(PatientInformationActivity.this, "Failed to connect to server.", Toast.LENGTH_LONG).show();
+                    }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("first_name", etFirstName.getText().toString().trim());
+                    params.put("last_name", etLastName.getText().toString().trim());
+                    params.put("date_of_birth", convertDateToMySQL(etDateOfBirth.getText().toString().trim()));
+                    params.put("gender", autoCompleteSex.getText().toString().trim());
+                    params.put("height", etHeight.getText().toString().trim());
+                    params.put("weight", etWeight.getText().toString().trim());
+                    params.put("civil_status", autoCompleteMaritalStatus.getText().toString().trim());
+                    params.put("contact_number", etContactNumber.getText().toString().trim());
+                    params.put("email", autoCompleteEmail.getText().toString().trim());
+                    params.put("barangay_id", String.valueOf(barangayId));
+                    params.put("address", etPatientAddress.getText().toString().trim());
+                    params.put("city", etCity.getText().toString().trim());
+                    params.put("state_province", etStateProvince.getText().toString().trim());
+                    params.put("emergency_fname", etEmergencyFirstName.getText().toString().trim());
+                    params.put("emergency_lname", etEmergencyLastName.getText().toString().trim());
+                    params.put("emergency_relationship", autoCompleteRelationship.getText().toString().trim());
+                    params.put("emergency_connum", etEmergencyContactNumber.getText().toString().trim());
+                    params.put("tracking_number", trackingNum);
+                    params.put("medication_list", "");
+
+                    // Log the parameters being sent
+                    Log.d(TAG, "Form params: " + params.toString());
+                    return params;
+                }
+
+                @Override
+                public Map<String, String> getHeaders() {
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("Content-Type", "application/x-www-form-urlencoded");
+                    return headers;
+                }
+            };
 
             request.setRetryPolicy(new com.android.volley.DefaultRetryPolicy(
                     0, 0, 1f
@@ -587,6 +783,7 @@ public class PatientInformationActivity extends AppCompatActivity {
         Log.d(TAG, "First Name: " + etFirstName.getText().toString().trim());
         Log.d(TAG, "Last Name: " + etLastName.getText().toString().trim());
         Log.d(TAG, "Email: " + autoCompleteEmail.getText().toString().trim());
+        Log.d(TAG, "Barangay: " + autoCompleteBarangay.getText().toString().trim());
 
         // In edit mode, only validate editable fields
         if (isEditing) {
