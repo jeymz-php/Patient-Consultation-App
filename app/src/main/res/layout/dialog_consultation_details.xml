@@ -18,49 +18,6 @@
         android:gravity="center"
         android:layout_marginBottom="20dp" />
 
-    <!-- Doctor Information -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="16dp"
-        android:gravity="center_vertical">
-
-        <ImageView
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/ic_doctor"
-            android:tint="#C96A00"
-            android:layout_marginEnd="12dp" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/txtDialogDoctorName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Dr. Sarah Johnson"
-                android:textColor="#333333"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/txtDialogDoctorSpecialty"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Cardiology Specialist"
-                android:textColor="#666666"
-                android:textSize="14sp"
-                android:layout_marginTop="2dp" />
-
-        </LinearLayout>
-
-    </LinearLayout>
-
     <!-- Appointment Details Card -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"

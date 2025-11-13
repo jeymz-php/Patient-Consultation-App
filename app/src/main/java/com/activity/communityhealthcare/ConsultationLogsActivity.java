@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -348,13 +349,39 @@ public class ConsultationLogsActivity extends AppCompatActivity {
     private void joinVideoConference(Consultation consultation) {
         // Since getSchedulesMeet.php returns appointments within 30 minutes,
         // we can assume they're joinable
-        Toast.makeText(this, "Joining video conference...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Opening video conference in browser...", Toast.LENGTH_SHORT).show();
 
-        // Proceed to VideoConferenceActivity
-        Intent intent = new Intent(ConsultationLogsActivity.this, VideoConferenceActivity.class);
-        intent.putExtra("appointment_id", consultation.getAppointmentId());
-        intent.putExtra("appointment_date", consultation.getAppointmentDate());
-        intent.putExtra("appointment_time", consultation.getAppointmentTime());
-        startActivity(intent);
+        // Get patient name from shared preferences
+        String patientName = getPatientName();
+
+        // Construct the same URL as the desktop website
+        String videoConferenceUrl = "https://communityhealthcare.bsitfoura.com/userConsultation.php?name=" +
+                android.net.Uri.encode(patientName);
+
+        Log.d("VideoConference", "Opening URL: " + videoConferenceUrl);
+
+        // Open the URL in the device's browser
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(videoConferenceUrl));
+        startActivity(browserIntent);
+
+        // Optional: You can finish this activity if you want to return to previous screen
+        // finish();
+    }
+
+    private String getPatientName() {
+        try {
+            android.content.SharedPreferences prefs = getSharedPreferences("PatientData", MODE_PRIVATE);
+            String firstName = prefs.getString("first_name", "Patient");
+            String lastName = prefs.getString("last_name", "");
+
+            if (lastName.isEmpty()) {
+                return firstName;
+            } else {
+                return firstName + " " + lastName;
+            }
+        } catch (Exception e) {
+            Log.e("ConsultationLogs", "Error getting patient name: " + e.getMessage());
+            return "Patient";
+        }
     }
 }
